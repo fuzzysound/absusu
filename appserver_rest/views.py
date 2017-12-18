@@ -8,6 +8,6 @@ class UserActionList(generics.ListCreateAPIView):
     queryset = UserAction.objects.all()
     serializer_class = UserActionSerializer
 
-class UserActionDetail(generics.RetrieveUpdateAPIView):
+class UserActionDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserAction.objects.all()
     serializer_class = UserActionSerializer
