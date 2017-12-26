@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import pymysql
+
+pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -77,10 +80,16 @@ WSGI_APPLICATION = 'absusu.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql', # We're using MySQL
+        'NAME': 'absusu_log', # Set to your database name
+        'USER': 'absusu', # Set to your user name
+        'PASSWORD': 'absusu', # Set to your user password
+        'HOST': 'localhost',
+        'POST': '3306',
     }
 }
+
+# Please read: https://dojunblog.wordpress.com/2017/02/20/django%EC%97%90%EC%84%9C-pymysql%EC%9D%84-%EC%9D%B4%EC%9A%A9%ED%95%B4-mysql-%EC%97%B0%EB%8F%99%ED%95%98%EA%B8%B0/
 
 
 # Password validation
