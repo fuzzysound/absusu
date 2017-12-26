@@ -89,7 +89,7 @@ DATABASES = {
     }
 }
 
-
+# Please read: https://dojunblog.wordpress.com/2017/02/20/django%EC%97%90%EC%84%9C-pymysql%EC%9D%84-%EC%9D%B4%EC%9A%A9%ED%95%B4-mysql-%EC%97%B0%EB%8F%99%ED%95%98%EA%B8%B0/
 
 
 # Password validation
