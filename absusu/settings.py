@@ -36,6 +36,8 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'rest_framework',
     'appserver_rest.apps.AppserverRestConfig',
+    'experimenter.apps.ExperimenterConfig',
+    'django_mysql',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -86,6 +88,14 @@ DATABASES = {
         'PASSWORD': 'absusu', # Set to your user password
         'HOST': 'localhost',
         'POST': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            # Why doing this? check http://django-mysql.readthedocs.io/en/latest/checks.html#django-mysql-w003-utf8mb4
+        },
+        'TEST': {
+            'CHARSET': 'utf8mb4',
+            'COLLATION': 'utf8mb4_unicode_ci',
+        }
     }
 }
 

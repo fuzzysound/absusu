@@ -1,5 +1,7 @@
 from django.db import models
-from experimenter_.randomizer import get_user_group
+
+from experimenter.randomizer import get_user_group
+
 
 class UserAction(models.Model):
     ip = models.CharField(max_length=100, blank=True, null=True)
