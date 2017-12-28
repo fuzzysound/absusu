@@ -1,5 +1,4 @@
 from django.db import models
-from django_mysql.models import ListCharField # A field class similar to python list
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
@@ -69,7 +68,7 @@ class Group(models.Model):
     def clean(self, *args, **kwargs):
 
         # weight가 양의 정수가 아닐 경우
-        if self.weight < 1:
+        if self.weight is None or self.weight < 1:
             raise ValidationError(_("Weight must be a positive integer!"), code='weight_is_non_positive')
 
     def save(self, *args, **kwargs):

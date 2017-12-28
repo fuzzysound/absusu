@@ -1,8 +1,7 @@
 from django.db import models
 from django_mysql.models import JSONField
 
-
-
+# 유저가 어느 집단에 할당되었는지(Ramp up 사용할 경우엔 어느 hash partition에 할당되었는지) 기록하는 모델
 class UserAssignment(models.Model):
     ip = models.CharField(max_length=100, blank=True, null=True, unique=True)
     assignment = JSONField(default=dict)
@@ -10,6 +9,7 @@ class UserAssignment(models.Model):
 
 from experimenter.randomizer import get_user_groups
 
+# 유저 행동을 기록하는 모델, application server에 응답함.
 class UserAction(models.Model):
     ip = models.CharField(max_length=100, blank=True, null=True)
     groups = JSONField({})
@@ -20,10 +20,10 @@ class UserAction(models.Model):
         ordering = ('time', )
 
     def save(self, *args, **kwargs):
-        self.groups = get_user_groups(self.ip)
+        self.groups = get_user_groups(self.ip) # randomization
         super(UserAction, self).save(*args, **kwargs)
 
 
 
 
-# TODO: 실험 여러 개일때 어떤 실험의 그룹인지, total impression 기록할 방법
+# TODO: total impression 기록할 방법

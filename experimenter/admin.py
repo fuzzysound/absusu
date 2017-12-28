@@ -3,7 +3,8 @@ from .models import Experiment, Group
 
 class GroupInline(admin.TabularInline):
     model = Group
-    extra = 2
+    extra = 0
+    min_num = 2 # 최소 2개의 group을 등록하도록 함. TODO: experiment 생성 후 나중에 수정하지 못하도록 해야 함.
 
 class ExperimentAdmin(admin.ModelAdmin):
     fields = ['name', 'start_time', 'end_time']
