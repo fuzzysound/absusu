@@ -3,7 +3,8 @@ from django_mysql.models import ListCharField # A field class similar to python 
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-from math import isclose
+from .managers import ExperimentManager
+
 
 class Experiment(models.Model):
 
@@ -12,9 +13,13 @@ class Experiment(models.Model):
     a_week_after_now = now + timezone.timedelta(days=7)
 
     # 필드
-    name = models.CharField(max_length=100, blank=False, null=True)
+    name = models.CharField(max_length=100, blank=False, null=True, unique=True)
     start_time = models.DateTimeField(default=now)
     end_time = models.DateTimeField(default=a_week_after_now)
+    ramp_up = models.BooleanField(default=False)
+
+    # Custom manager
+    objects = ExperimentManager()
 
     # 만약 migration할 때 table doesn't exist 에러가 발생한다면: http://techstream.org/Bits/Recover-dropped-table-in-Django
     # 만약 test할 때 naive datetime 워닝이 발생한다면: experimenter/migrations 디렉토리에서 __init__.py 빼고 모두 제거
@@ -48,11 +53,15 @@ class Experiment(models.Model):
         self.full_clean()
         super(Experiment, self).save(*args, **kwargs)
 
+
 class Group(models.Model):
 
     name = models.CharField(max_length=100, blank=False, null=True)
     weight = models.IntegerField()
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('name', 'experiment'), ) # 같은 experiment 안에서 name은 unique하게
 
     def __str__(self):
         return self.name
