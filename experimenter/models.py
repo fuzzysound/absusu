@@ -2,7 +2,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-from .managers import ExperimentManager
+from .managers import ExperimentManager, GroupManager
 
 
 class Experiment(models.Model):
@@ -55,9 +55,13 @@ class Experiment(models.Model):
 
 class Group(models.Model):
 
+    # 필드
     name = models.CharField(max_length=100, blank=False, null=True)
     weight = models.IntegerField()
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+
+    # Custom manager
+    objects = GroupManager()
 
     class Meta:
         unique_together = (('name', 'experiment'), ) # 같은 experiment 안에서 name은 unique하게

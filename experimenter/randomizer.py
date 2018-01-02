@@ -37,6 +37,6 @@ def assign(ip, experiment, assignment, ramp_up):
 def groupify(experiment_assignment, ramp_up):
     if ramp_up:
         pass # Ramp up 적용할 때 채우기
-    else:
+    else: 
         return experiment_assignment
 

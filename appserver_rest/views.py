@@ -5,3 +5,4 @@ from .serializers import UserActionSerializer
 class UserActionViewSet(viewsets.ModelViewSet):
     queryset = UserAction.objects.all()
     serializer_class = UserActionSerializer
+
