@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import UserAction
+from .models import UserAction, UserAssignment
 from experimenter.randomizer import get_user_groups
 
 class UserActionSerializer(serializers.ModelSerializer):
@@ -12,3 +12,7 @@ class UserActionSerializer(serializers.ModelSerializer):
         validated_data['groups'] = get_user_groups(validated_data['ip'])
         return super().create(validated_data)
 
+class UserAssignSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAssignment
+        fields = '__all__'

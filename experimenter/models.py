@@ -4,17 +4,17 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from .managers import ExperimentManager, GroupManager
 
-
+def get_default_deadline():
+    return timezone.now() + timezone.timedelta(days=7)
+def get_default_now():
+    return timezone.now()
 class Experiment(models.Model):
-
-    # 시간 default 값으로 쓰일 값들
-    now = timezone.now()
-    a_week_after_now = now + timezone.timedelta(days=7)
-
+    start = get_default_now()
+    end = get_default_deadline()
     # 필드
     name = models.CharField(max_length=100, blank=False, null=True, unique=True)
-    start_time = models.DateTimeField(default=now)
-    end_time = models.DateTimeField(default=a_week_after_now)
+    start_time = models.DateTimeField(default=start)
+    end_time = models.DateTimeField(default=end)
     ramp_up = models.BooleanField(default=False)
 
     # Custom manager
@@ -38,8 +38,8 @@ class Experiment(models.Model):
     def clean(self, *args, **kwargs):
 
         # 시작 시간이 지금보다 이전일 경우
-        if self.start_time < self.now:
-            self.start_time = self.now
+        if self.start_time < self.start:
+            self.start_time = self.start
 
         # 종료 시간이 시작 시간보다 이전일 경우
         if self.end_time < self.start_time:
@@ -78,7 +78,6 @@ class Group(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         super(Group, self).save(*args, **kwargs)
-
 
 
 
