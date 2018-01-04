@@ -16,7 +16,6 @@ class Experiment(models.Model):
     start_time = models.DateTimeField(default=start)
     end_time = models.DateTimeField(default=end)
     ramp_up = models.BooleanField(default=False)
-
     # Custom manager
     objects = ExperimentManager()
 
@@ -79,8 +78,21 @@ class Group(models.Model):
         self.full_clean()
         super(Group, self).save(*args, **kwargs)
 
+SUBJECT_CHOICES= (
+    ('clicks', 'Clicks'),
+    ('pageviews', 'Pageviews'),
+)
 
+class Goal(models.Model):
+    #field
+    name = models.CharField(max_length=100, blank=False, null=True, unique=True)
+    track = models.CharField(max_length=10, choices = SUBJECT_CHOICES, default='clicks')
+    act_subject = models.CharField(max_length=100, blank=False, null=True)
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = (('track','act_subject'),)
+        #act_subject 당 track은 한 개씩 있어야 하므로
 
-
-
+    def __str__(self):
+        return self.name
