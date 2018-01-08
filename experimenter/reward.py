@@ -30,8 +30,9 @@ def CTR(experiment, group, act_subject):
     finally:
         conn.close()
 
-
+'''
 #for test
 if __name__ =="__main__":
     result = CTR('exp1','test','button1')
     print(result)
+'''
