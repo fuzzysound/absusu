@@ -9,14 +9,14 @@ conn = pymysql.connect(host='localhost',
 def CTR(experiment, group, act_subject):
     try:
         curs = conn.cursor(pymysql.cursors.DictCursor)
-        sql = "select * from appserver_rest_useraction where groups = json_object('%s','%s');" % (experiment, group)
+        sql = "select * from appserver_rest_useraction where json_extract(groups,'$.%s')='%s';" % (experiment, group)
         curs.execute(sql)
         rows = curs.fetchall()
 
         impressions = 0
         clicks = 0
         for row in rows:
-            if row['action'] == '':
+            if experiment in row['action'] and 'view' in row['action']:
                 impressions += 1
             elif act_subject in row['action'] and 'click' in row['action']:
                 clicks += 1
@@ -30,9 +30,8 @@ def CTR(experiment, group, act_subject):
     finally:
         conn.close()
 
-'''
+
 #for test
 if __name__ =="__main__":
-    result = CTR('exp1','control','button1')
+    result = CTR('exp1','test','button1')
     print(result)
-'''
