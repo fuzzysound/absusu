@@ -48,7 +48,6 @@ class KPI:
                 impressions = 0
                 clicks = 0
                 for row in rows:
-                    print(row)
                     if experiment in row['action'] and 'view' in row['action']:
                         impressions += 1
                     elif act_subject in row['action'] and 'click' in row['action']:
@@ -59,7 +58,7 @@ class KPI:
 
         except Exception as e:
             print(e)
-
+'''
 #example
 if __name__ =="__main__":
     kpi = KPI()
@@ -74,3 +73,4 @@ if __name__ =="__main__":
     print(result4)
     print(result5)
     del kpi
+'''    
