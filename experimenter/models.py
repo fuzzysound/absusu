@@ -85,14 +85,13 @@ SUBJECT_CHOICES= (
 
 class Goal(models.Model):
     #field
-    name = models.CharField(max_length=100, blank=False, null=True, unique=True)
+    name = models.CharField(max_length=100, blank=False, null=True)
     track = models.CharField(max_length=10, choices = SUBJECT_CHOICES, default='clicks')
     act_subject = models.CharField(max_length=100, blank=False, null=True)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = (('track','act_subject'),)
-        #act_subject 당 track은 한 개씩 있어야 하므로
+        unique_together = (('name','track','act_subject','experiment'),)
 
     def __str__(self):
-        return self.name
+        return '%s %s' % (self.experiment, self.name)

@@ -51,12 +51,6 @@ class GroupModelTests(TestCase):
 
 
 class GoalModelTests(TestCase):
-    '''
-    def setUp(self):
-        experiment=Experiment.objects.create(name="exp1")
-        group = Group(name="group", weight=5, experiment=experiment)
-        Goal.objects.create(name="button1_ctr",act_subject="button1",experiment=experiment)
-    '''
     def test_str_is_equal_to_name(self):
         '''
         Method `__str__` should be equal to field `name`
@@ -64,4 +58,13 @@ class GoalModelTests(TestCase):
         experiment = Experiment.objects.create(name="exp1")
         group = Group(name="group", weight=5, experiment=experiment)
         goal = Goal.objects.create(name="button1_ctr", act_subject="button1", experiment=experiment)
-        self.assertEqual(str(goal),goal.name)
+        self.assertEqual(str(goal),experiment.name +' '+ goal.name)
+
+    def test_goal_can_have_same_name(self):
+        experiment1 = Experiment.objects.create(name="exp1")
+        experiment2 = Experiment.objects.create(name="exp2")
+        group1 = Group(name="group1",weight=5,experiment=experiment1)
+        group2 = Group(name="group2", weight=5, experiment=experiment2)
+        goal1 = Goal.objects.create(name="button1_ctr", act_subject="button1", experiment=experiment1)
+        goal2 = Goal.objects.create(name="button1_ctr", act_subject="button1", experiment=experiment2)
+        self.assertEqual(goal1.name, goal2.name)
