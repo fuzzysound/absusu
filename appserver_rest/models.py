@@ -21,5 +21,4 @@ class UserAssignment(models.Model):
 
 
 
-
 # TODO: total impression 기록할 방법
