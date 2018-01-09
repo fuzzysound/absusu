@@ -6,16 +6,19 @@ from .managers import ExperimentManager, GroupManager
 
 def get_default_deadline():
     return timezone.now() + timezone.timedelta(days=7)
+
 def get_default_now():
     return timezone.now()
+
 class Experiment(models.Model):
     start = get_default_now()
     end = get_default_deadline()
+
     # 필드
     name = models.CharField(max_length=100, blank=False, null=True, unique=True)
     start_time = models.DateTimeField(default=start)
     end_time = models.DateTimeField(default=end)
-    ramp_up = models.BooleanField(default=False)
+
     # Custom manager
     objects = ExperimentManager()
 
@@ -54,9 +57,14 @@ class Experiment(models.Model):
 
 class Group(models.Model):
 
+    BOOLEAN_CHOICES = ((True, "Yes"), (False, "No"))
+
     # 필드
     name = models.CharField(max_length=100, blank=False, null=True)
     weight = models.IntegerField()
+    control = models.BooleanField(default=False, choices=BOOLEAN_CHOICES)
+    ramp_up = models.BooleanField(default=False, choices=BOOLEAN_CHOICES)
+    ramp_up_ratio = models.FloatField(default=0.5) # must be between 0 and 100
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
 
     # Custom manager
