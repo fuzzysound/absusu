@@ -35,3 +35,7 @@ class UserActionModelTests(APITestCase):
                 any_diff += 1
         self.assertNotEqual(any_diff, 0)
 
+    # 의도한 비율대로 집단이 배정되는가 (ramp-up X)
+
+    # 의도한 비율대로 집단이 배정되는가 (ramp-up O)
+

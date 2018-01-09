@@ -49,6 +49,12 @@ class GroupModelTests(TestCase):
         the_exception = cm.exception
         self.assertEqual(the_exception.code, 'weight_is_non_positive')
 
+    # control group이 0개일 경우
+
+    # control group이 2개 이상일 경우
+
+    # ramp up ratio가 0~100 사이의 수가 아닐 경우
+
 
 class GoalModelTests(TestCase):
     def test_str_is_equal_to_name(self):

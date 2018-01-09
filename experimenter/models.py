@@ -11,6 +11,8 @@ def get_default_now():
     return timezone.now()
 
 class Experiment(models.Model):
+
+    # default 값으로 지정하기 위한 변수들
     start = get_default_now()
     end = get_default_deadline()
 
@@ -86,12 +88,14 @@ class Group(models.Model):
         self.full_clean()
         super(Group, self).save(*args, **kwargs)
 
-SUBJECT_CHOICES= (
-    ('clicks', 'Clicks'),
-    ('pageviews', 'Pageviews'),
-)
 
 class Goal(models.Model):
+
+    SUBJECT_CHOICES = (
+        ('clicks', "Clicks"),
+        ('pageviews', "Pageviews"),
+    )
+
     #field
     name = models.CharField(max_length=100, blank=False, null=True)
     track = models.CharField(max_length=10, choices = SUBJECT_CHOICES, default='clicks')
