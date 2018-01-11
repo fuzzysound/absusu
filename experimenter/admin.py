@@ -9,6 +9,7 @@ class GroupInline(admin.TabularInline):
 class GoalInline(admin.TabularInline):
     model = Goal
     extra = 1
+    min_num = 1
 
 class ExperimentAdmin(admin.ModelAdmin):
     fields = ['name', 'start_time', 'end_time']
