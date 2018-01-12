@@ -49,11 +49,23 @@ class GroupModelTests(TestCase):
         the_exception = cm.exception
         self.assertEqual(the_exception.code, 'weight_is_non_positive')
 
-    # control group이 0개일 경우
+    # ramp up percent가 0보다 작을 경우
+    def test_ramp_up_percent_is_less_than_zero(self):
+        experiment = Experiment(name="experiment")
+        group = Group(name="group", weight=1, experiment=experiment, ramp_up=True, ramp_up_percent=-30)
+        with self.assertRaises(ValidationError) as cm:
+            group.clean()
+        the_exception = cm.exception
+        self.assertEqual(the_exception.code, 'ramp_up_percent_is_not_valid')
 
-    # control group이 2개 이상일 경우
-
-    # ramp up ratio가 0~100 사이의 수가 아닐 경우
+    # ramp up percent가 100보다 클 경우
+    def test_ramp_up_percent_is_greater_than_a_hundred(self):
+        experiment = Experiment(name="experiment")
+        group = Group(name="group", weight=1, experiment=experiment, ramp_up=True, ramp_up_percent=130)
+        with self.assertRaises(ValidationError) as cm:
+            group.clean()
+        the_exception = cm.exception
+        self.assertEqual(the_exception.code, 'ramp_up_percent_is_not_valid')
 
 
 class GoalModelTests(TestCase):

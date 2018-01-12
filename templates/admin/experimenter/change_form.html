@@ -5,29 +5,19 @@
 {{ block.super }}
 <script>
     var $ = django.jQuery;
-    $(".form-row.field-ramp_up_ratio").hide();
-    $("[id^=id_group_set-][id$=-control]").change(function() {
-        $(this).parents(".inline-related.dynamic-group_set").siblings().find(".form-row.field-control")
-            .find("input:checkbox").checked = false;
-        if ($(this).is(":checked") == false) {
-            $(this).parents(".inline-related.dynamic-group_set").siblings().find(".form-row.field-control").show();
-            var ramp_up = $(this).parents(".module.aligned").find(".form-row.field-ramp_up")
-            ramp_up.show();
-            if (ramp_up.find(":radio:checked").val() == 'True') {
-                $(this).parents(".module.aligned").find(".form-row.field-ramp_up_ratio").show();
-                }
-            } else {
-            $(this).parents(".inline-related.dynamic-group_set").siblings().find(".form-row.field-control").hide();
-            $(this).parents(".module.aligned").find(".form-row.field-ramp_up").hide();
-            $(this).parents(".module.aligned").find(".form-row.field-ramp_up_ratio").hide();
-            }
-        });
+    $(".form-row.field-ramp_up_percent").hide();
+    $(".js-inline-admin-formset.inline-group").find(".form-row.field-control").hide();
+    $(".js-inline-admin-formset.inline-group").find(".form-row.field-ramp_up").first().hide();
     $("[id^=id_group_set-][id$=-ramp_up]").change(function() {
         if ($(this).find(":radio:checked").val() == 'True') {
-            $(this).parents(".module.aligned").find(".form-row.field-ramp_up_ratio").show();
+            $(this).parents(".module.aligned").find(".form-row.field-ramp_up_percent").show();
             } else {
-            $(this).parents(".module.aligned").find(".form-row.field-ramp_up_ratio").hide();
+            $(this).parents(".module.aligned").find(".form-row.field-ramp_up_percent").hide();
             }
         });
+     $(document).ready(function(){
+        $(".js-inline-admin-formset.inline-group").find(".form-row.field-control").first().find("input:checkbox")
+        .attr("checked", true);
+     });
 </script>
 {% endblock %}

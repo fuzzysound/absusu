@@ -9,24 +9,24 @@ import numpy as np
 def get_user_groups(ip):
     groups = {}
     try:
-        assignment = UserAssignment.objects.get(ip=ip).assignment # UserAssignment DB에 기록이 이미 있으면 가져온다
+        hash_indexes = UserAssignment.objects.get(ip=ip).hash_indexes # UserAssignment DB에 기록이 이미 있으면 가져온다
     except UserAssignment.DoesNotExist:
-        assignment = {} # 없으면 빈 dictionary로 지정
+        hash_indexes = {} # 없으면 빈 dictionary로 지정
     for experiment in models.Experiment.objects.active(): # 현재 active한 실험마다 group 지정
-        if assignment.get(experiment.name, 0) == 0: # 만약 해당 experiment에 대해 user가 assign되어있지 않으면
-            assignment = assign(ip, experiment, assignment) # 새로 assign해줌
-        hash_index = assignment[experiment.name] # 해당 experiment에서 user가 assign된 hash index
+        if hash_indexes.get(experiment.name, 0) == 0: # 만약 해당 experiment에 대해 user가 assign되어있지 않으면
+            hash_indexes = assign(ip, experiment, hash_indexes) # 새로 assign해줌
+        hash_index = hash_indexes[experiment.name] # 해당 experiment에서 user가 assign된 hash index
         groups[experiment.name] = groupify(hash_index, experiment) # hash index를 바탕으로 group 결정
     return groups
 
 # 유저를 group에 hash partition에 assign하고 DB에 기록하는 함수
-def assign(ip, experiment, assignment):
+def assign(ip, experiment, hash_indexes):
     hash_id = experiment.name + ip # experiment의 이름과 ip 주소를 결합해 고유한 hash id 생성
     hash_value = hashlib.md5(hash_id.encode()).hexdigest() # md5를 이용해 hash id를 16진수의 hash value로 변환
     hash_index = int(hash_value, 16) % 1000 # hash value를 1000으로 나눈 나머지를 hash index로 지정 (0~999 사이의 값)
-    assignment[experiment.name] = hash_index # memory의 assignment 변수를 업데이트
-    UserAssignment.objects.update_or_create(ip=ip, defaults={'assignment': assignment}) # DB에 업데이트 혹은 새로 생성
-    return assignment
+    hash_indexes[experiment.name] = hash_index # memory의 hash_indexes 변수를 업데이트
+    UserAssignment.objects.update_or_create(ip=ip, defaults={'hash_indexes': hash_indexes}) # DB에 업데이트 혹은 새로 생성
+    return hash_indexes
 
 
 # 인수로 받은 hash index에 알맞는 group을 반환하는 함수
@@ -52,11 +52,12 @@ def groupify(hash_index, experiment):
     if assigned_group.control or not assigned_group.ramp_up: # assign된 group이 control group이거나 ramp up을 사용하지 않는 경우
         return assigned_group.name # 그대로 assign된 group의 이름 반환
     else: # ramp up을 사용하는 경우
-        rampup_separator = left_separator + (right_separator-left_separator)*assigned_group.ramp_up_ratio/100 # 새로운 기준숫자
+        rampup_separator = left_separator + (right_separator-left_separator)*assigned_group.ramp_up_percent/100 # 새로운 기준숫자
         if hash_index < rampup_separator: # hash index가 그 기준숫자보다 작으면
             return assigned_group.name # assign된 group의 이름 반환
         else: # 아닐 경우
             return control_group.name # control group의 이름 반환
 
+# TODO: automatic ramp-up
 
 

@@ -1,15 +1,18 @@
+### testing server 자체적으로 생성하는 데이터를 정의하는 모델들
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from .managers import ExperimentManager, GroupManager
 
-def get_default_deadline():
-    return timezone.now() + timezone.timedelta(days=7)
-
+# default 값을 생성하기 위한 함수들
 def get_default_now():
     return timezone.now()
 
+def get_default_deadline():
+    return timezone.now() + timezone.timedelta(days=7)
+
+# 실험을 정의하는 모델
 class Experiment(models.Model):
     start = get_default_now()
     end = get_default_deadline()
@@ -54,7 +57,7 @@ class Experiment(models.Model):
         self.full_clean()
         super(Experiment, self).save(*args, **kwargs)
 
-
+# 실험의 집단을 정의하는 모델, 실험에 종속적.
 class Group(models.Model):
 
     BOOLEAN_CHOICES = ((True, "Yes"), (False, "No"))
@@ -64,7 +67,7 @@ class Group(models.Model):
     weight = models.IntegerField()
     control = models.BooleanField(default=False, choices=BOOLEAN_CHOICES)
     ramp_up = models.BooleanField(default=False, choices=BOOLEAN_CHOICES)
-    ramp_up_ratio = models.FloatField(default=0.5) # must be between 0 and 100
+    ramp_up_percent = models.FloatField(default=0.5) # must be between 0 and 100
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
 
     # Custom manager
@@ -82,11 +85,15 @@ class Group(models.Model):
         if self.weight is None or self.weight < 1:
             raise ValidationError(_("Weight must be a positive integer!"), code='weight_is_non_positive')
 
+        # ramp up percent가 0에서 100 사이의 값이 아닐 경우
+        if self.ramp_up_percent > 100 or self.ramp_up_percent < 0:
+            raise ValidationError(_("Ramp up percent must be between 0 and 100!"), code='ramp_up_percent_is_not_valid')
+
     def save(self, *args, **kwargs):
         self.full_clean()
         super(Group, self).save(*args, **kwargs)
 
-
+# 실험의 목표를 정의하는 모델
 class Goal(models.Model):
     SUBJECT_CHOICES = (
         ('clicks', 'Clicks'),
