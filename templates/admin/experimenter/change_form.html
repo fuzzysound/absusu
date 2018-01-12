@@ -1,0 +1,23 @@
+{% extends 'admin/change_form.html' %}
+{% load static %}
+
+{% block admin_change_form_document_ready %}
+{{ block.super }}
+<script>
+    var $ = django.jQuery;
+    $(".form-row.field-ramp_up_percent").hide();
+    $(".js-inline-admin-formset.inline-group").find(".form-row.field-control").hide();
+    $(".js-inline-admin-formset.inline-group").find(".form-row.field-ramp_up").first().hide();
+    $("[id^=id_group_set-][id$=-ramp_up]").change(function() {
+        if ($(this).find(":radio:checked").val() == 'True') {
+            $(this).parents(".module.aligned").find(".form-row.field-ramp_up_percent").show();
+            } else {
+            $(this).parents(".module.aligned").find(".form-row.field-ramp_up_percent").hide();
+            }
+        });
+     $(document).ready(function(){
+        $(".js-inline-admin-formset.inline-group").find(".form-row.field-control").first().find("input:checkbox")
+        .attr("checked", true);
+     });
+</script>
+{% endblock %}
