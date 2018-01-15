@@ -17,8 +17,4 @@ class UserAssignment(models.Model):
     ip = models.CharField(max_length=100, blank=True, null=True, unique=True)
     assignment = JSONField(default=dict)
 
-
-
-
-
 # TODO: total impression 기록할 방법

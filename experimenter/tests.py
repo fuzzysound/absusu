@@ -51,6 +51,7 @@ class GroupModelTests(TestCase):
 
 
 class GoalModelTests(TestCase):
+
     def test_str_is_equal_to_name(self):
         '''
         Method `__str__` should be equal to field `name`
@@ -60,11 +61,24 @@ class GoalModelTests(TestCase):
         goal = Goal.objects.create(name="button1_ctr", act_subject="button1", experiment=experiment)
         self.assertEqual(str(goal),experiment.name +' '+ goal.name)
 
-    def test_goal_can_have_same_name(self):
+    def test_goal_cant_have_same_name(self):
+        from django.db import utils
         experiment1 = Experiment.objects.create(name="exp1")
         experiment2 = Experiment.objects.create(name="exp2")
         group1 = Group(name="group1",weight=5,experiment=experiment1)
         group2 = Group(name="group2", weight=5, experiment=experiment2)
         goal1 = Goal.objects.create(name="button1_ctr", act_subject="button1", experiment=experiment1)
-        goal2 = Goal.objects.create(name="button1_ctr", act_subject="button1", experiment=experiment2)
-        self.assertEqual(goal1.name, goal2.name)
+        with self.assertRaises(Exception) as raised:
+            goal2 = Goal.objects.create(name="button1_ctr", act_subject="button2", experiment=experiment2)
+        self.assertEqual(utils.IntegrityError, type(raised.exception))
+
+    def test_goal_cant_have_same_act_subject(self):
+        from django.db import utils
+        experiment1 = Experiment.objects.create(name="exp1")
+        experiment2 = Experiment.objects.create(name="exp2")
+        group1 = Group(name="group1",weight=5,experiment=experiment1)
+        group2 = Group(name="group2", weight=5, experiment=experiment2)
+        goal1 = Goal.objects.create(name="exp1_ctr", act_subject="button1", experiment=experiment1)
+        with self.assertRaises(Exception) as raised:
+            goal2 = Goal.objects.create(name="exp2_ctr", act_subject="button1", experiment=experiment2)
+        self.assertEqual(utils.IntegrityError, type(raised.exception))
