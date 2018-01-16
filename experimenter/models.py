@@ -53,7 +53,6 @@ class Experiment(models.Model):
 
 
 class Group(models.Model):
-
     # 필드
     name = models.CharField(max_length=100, blank=False, null=True)
     weight = models.IntegerField()

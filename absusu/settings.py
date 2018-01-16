@@ -48,7 +48,7 @@ INSTALLED_APPS = [
 ]
 
 CONTROLCENTER_DASHBOARDS = (
-    ('mydash','absusu.dashboards.MyDashboard'),
+    ('mydash','absusu.dashboards.AbsusuDashboard'),
 )
 
 MIDDLEWARE = [

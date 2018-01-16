@@ -1,3 +1,6 @@
+'''
+Calculate the ab test metrics
+'''
 from django.db import connection
 import os
 
