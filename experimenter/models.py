@@ -14,6 +14,8 @@ def get_default_deadline():
 
 # 실험을 정의하는 모델
 class Experiment(models.Model):
+
+    # default 값으로 지정하기 위한 변수들
     start = get_default_now()
     end = get_default_deadline()
 
@@ -21,7 +23,7 @@ class Experiment(models.Model):
     name = models.CharField(max_length=100, blank=False, null=True, unique=True)
     start_time = models.DateTimeField(default=start)
     end_time = models.DateTimeField(default=end)
-    ramp_up = models.BooleanField(default=False)
+
     # Custom manager
     objects = ExperimentManager()
 
@@ -77,7 +79,7 @@ class Group(models.Model):
         unique_together = (('name', 'experiment'), ) # 같은 experiment 안에서 name은 unique하게
 
     def __str__(self):
-        return '%s %s' % (self.experiment, self.name)
+        return self.name
 
     def clean(self, *args, **kwargs):
 
@@ -95,9 +97,10 @@ class Group(models.Model):
 
 # 실험의 목표를 정의하는 모델
 class Goal(models.Model):
+
     SUBJECT_CHOICES = (
-        ('clicks', 'Clicks'),
-        ('pageviews', 'Pageviews'),
+        ('clicks', "Clicks"),
+        ('pageviews', "Pageviews"),
     )
 
     #field
