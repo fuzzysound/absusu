@@ -77,7 +77,7 @@ class Group(models.Model):
         unique_together = (('name', 'experiment'), ) # 같은 experiment 안에서 name은 unique하게
 
     def __str__(self):
-        return self.name
+        return '%s %s' % (self.experiment, self.name)
 
     def clean(self, *args, **kwargs):
 
