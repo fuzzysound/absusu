@@ -20,11 +20,13 @@ class KPI:
             for row in cursor.fetchall()
         ]
 
-    def CTR(self, experiment, group, act_subject):
+    # date: to specify time period
+    def CTR(self, experiment, group, act_subject, date):
         '''
         :param experiment: experiment to calculate
         :param group: group to calculate under the experiment
         :param act_subject: click-through rate target
+        :param date: specify date to calculate CTR
         :return: click-through rate under those conditions
         '''
         try:
@@ -43,7 +45,8 @@ class KPI:
                     return None
 
                 #caculate CTR
-                sql = "select * from appserver_rest_useraction where json_extract(groups,'$.%s')='%s';" % (experiment, group)
+                sql = "select * from appserver_rest_useraction where json_extract(groups,'$.%s')='%s' and time < '%s' + INTERVAL 1 DAY;"\
+                      % (experiment, group, date)
                 curs.execute(sql)
                 rows = self.dictfetchall(curs)
 
@@ -56,20 +59,22 @@ class KPI:
                         clicks += 1
                 ctr = clicks / impressions
 
-                return ctr
+                return round(ctr, 3)
 
         except Exception as e:
-            print(e)
+            return 0
+            # to make time series in dashboard.py reasonable, we need 0 when useraction does not occur
+            # print(e)
 
 '''
 #example
 if __name__ =="__main__":
     kpi = KPI()
     result1 = kpi.CTR('exp1','test','button1')
-    result2 = kpi.CTR('exp1','control','button1')
-    result3 = kpi.CTR('exp1','test','button2')
-    result4 = kpi.CTR('exp2','test','button2')
-    result5 = kpi.CTR('exp2', 'control', 'button2')
+    result2 = kpi.CTR('exp2','test','button3')
+    result3 = kpi.CTR('exp1','test','button10')
+    result4 = kpi.CTR('exp3','test','button5')
+    result5 = kpi.CTR('exp1', 'test3', 'button1')
     print(result1)
     print(result2)
     print(result3)
