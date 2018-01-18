@@ -56,7 +56,8 @@ class MyLineChart(widgets.LineChart):
         return [exp_name +' ' + group_name for exp_name, group_name in queryset]
     '''
     legend queryset format
-    <ExperimentQuerySet [('exp1', 'A'), ('exp1', 'B'), ('exp2', 'control'), ('exp2', 'test')]>'''
+    <ExperimentQuerySet [('exp1', 'A'), ('exp1', 'B'), ('exp2', 'control'), ('exp2', 'test')]>
+    '''
 
     # to represent values on x-axis such as date. ex) 2018-01-18
     def labels(self):
@@ -71,7 +72,8 @@ class MyLineChart(widgets.LineChart):
      '2018-01-15',
      '2018-01-14',
      '2018-01-13',
-     '2018-01-12']'''
+     '2018-01-12']
+    '''
 
     # to represent values on y-axis which is calculated by values()
     def series(self):
@@ -83,11 +85,13 @@ class MyLineChart(widgets.LineChart):
                 alist.append(result)
             series.append(alist)
         return series
-    """series format
+    '''
+    series format
     [[0.6, 0.6, 0.5, 0, 0, 0, 0],
      [0.9, 0.778, 0.857, 0, 0, 0, 0],
      [0.538, 0.571, 0.5, 0, 0, 0, 0],
-     [0.444, 0.429, 0.333, 0, 0, 0, 0]]"""
+     [0.444, 0.429, 0.333, 0, 0, 0, 0]]
+    '''
 
     # to calculate values such as CTR. ex) 0.725
     def values(self):
@@ -102,7 +106,7 @@ class MyLineChart(widgets.LineChart):
                 alist.append(kpi.CTR(exp_name, group_name, act_subject, label))
             values[label] = alist
         return values
-    """
+    '''
     values format
     {'2018-01-12': [0, 0, 0, 0],
      '2018-01-13': [0, 0, 0, 0],
@@ -112,7 +116,7 @@ class MyLineChart(widgets.LineChart):
      '2018-01-17': [0.429, 0.571, 0.778, 0.6],
      '2018-01-18': [0.444, 0.538, 0.9, 0.6]}
         }
-        """
+    '''
 
 
 class GroupPieChart(widgets.PieChart):
@@ -134,6 +138,7 @@ class GroupPieChart(widgets.PieChart):
             # donut chart
             'donut':True,
             'donutWidth': 50,
+            'donutSolid': True,
         }
 
     def series(self):
@@ -165,7 +170,7 @@ class GroupPieChart(widgets.PieChart):
 
 class AbsusuDashboard(Dashboard):
     widgets = (
-        widgets.Group([CTRList], width=widgets.LARGE),
-        widgets.Group([GroupPieChart], width=widgets.MEDIUM),
-        widgets.Group([MyLineChart], width=widgets.LARGE),
+        widgets.Group([CTRList], width=widgets.LARGER),
+        widgets.Group([GroupPieChart], width=widgets.SMALL),
+        widgets.Group([MyLineChart], width=widgets.LARGER),
     )
