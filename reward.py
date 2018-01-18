@@ -1,38 +1,42 @@
 '''
 Calculate the ab test metrics
 '''
-import pymysql
+from django.db import connection
+import os
 
 class KPI:
     def __init__(self):
-        print("db connection")
-        self.conn = pymysql.connect(host='localhost',
-                                    user='absusu',
-                                    password='absusu',
-                                    db='absusu_log',
-                                    charset='utf8',
-                                    cursorclass=pymysql.cursors.DictCursor)
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "absusu.settings")
 
-    def __del__(self):
-        if self.conn:
-            print("connection close")
-            self.conn.close()
+    def dictfetchall(self,cursor):
+        '''
+        "Return all rows from a cursor as a dict"
+        :param cursor: cursor
+        :return: dict_cursor
+        '''
+        columns = [col[0] for col in cursor.description]
+        return [
+            dict(zip(columns, row))
+            for row in cursor.fetchall()
+        ]
 
-    def CTR(self, experiment, group, act_subject):
+    # date: to specify time period
+    def CTR(self, experiment, group, act_subject, date):
         '''
         :param experiment: experiment to calculate
         :param group: group to calculate under the experiment
         :param act_subject: click-through rate target
+        :param date: specify date to calculate CTR
         :return: click-through rate under those conditions
         '''
         try:
-            with self.conn.cursor() as curs:
+            with connection.cursor() as curs:
                 # check valid act_subject
                 act_subject_list = []
                 sql = "select g.act_subject from experimenter_goal g, experimenter_experiment e \
                                 where g.experiment_id=e.id and e.name= '%s';" % (experiment)
                 curs.execute(sql)
-                rows = curs.fetchall()
+                rows = self.dictfetchall(curs)
                 for row in rows:
                     act_subject_list.append(row['act_subject'])
 
@@ -41,9 +45,10 @@ class KPI:
                     return None
 
                 #caculate CTR
-                sql = "select * from appserver_rest_useraction where json_extract(groups,'$.%s')='%s';" % (experiment, group)
+                sql = "select * from appserver_rest_useraction where json_extract(groups,'$.%s')='%s' and time < '%s' + INTERVAL 1 DAY;"\
+                      % (experiment, group, date)
                 curs.execute(sql)
-                rows = curs.fetchall()
+                rows = self.dictfetchall(curs)
 
                 impressions = 0
                 clicks = 0
@@ -54,10 +59,13 @@ class KPI:
                         clicks += 1
                 ctr = clicks / impressions
 
-                return ctr
+                return round(ctr, 3)
 
         except Exception as e:
-            print(e)
+            return 0
+            # to make time series in dashboard.py reasonable, we need 0 when useraction does not occur
+            # print(e)
+
 '''
 #example
 if __name__ =="__main__":
@@ -73,4 +81,4 @@ if __name__ =="__main__":
     print(result4)
     print(result5)
     del kpi
-'''    
+'''

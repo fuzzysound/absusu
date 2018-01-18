@@ -104,13 +104,13 @@ class Goal(models.Model):
     )
 
     #field
-    name = models.CharField(max_length=100, blank=False, null=True)
+    name = models.CharField(max_length=100, blank=False, null=True, unique=True)
     track = models.CharField(max_length=10, choices = SUBJECT_CHOICES, default='clicks')
     act_subject = models.CharField(max_length=100, blank=False, null=True)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = (('name','track','act_subject','experiment'),)
+        unique_together = (('track','act_subject'),)
 
     def __str__(self):
         return '%s %s' % (self.experiment, self.name)
