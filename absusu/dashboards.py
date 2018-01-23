@@ -7,7 +7,6 @@ from appserver_rest.models import UserAction
 from experimenter.models import Experiment
 from reward import KPI
 from django.utils import timezone
-import datetime
 
 # Active Experiments list
 # eg) EXPERIMENTS = ['exp1', 'exp2', 'exp3', ]
@@ -122,7 +121,7 @@ class TimeLineChart(widgets.LineChart):
     # to represent values on x-axis such as date. ex) 2018-01-18
     def labels(self):
         today = timezone.now().date()
-        labels = [(today - datetime.timedelta(days=x)).strftime('%Y-%m-%d') for x in range(self.elapsed_time)]
+        labels = [(today - timezone.timedelta(days=x)).strftime('%Y-%m-%d') for x in range(self.elapsed_time)]
         return labels
     '''
     labels format
