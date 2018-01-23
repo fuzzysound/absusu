@@ -12,7 +12,7 @@ import datetime
 # Active Experiments list
 # eg) EXPERIMENTS = ['exp1', 'exp2', 'exp3', ]
 EXPERIMENTS = []
-for experiment in Experiment.objects.active():
+for experiment in Experiment.objects.all():
     EXPERIMENTS.append(experiment.name)
 
 class CTRList(widgets.ItemList):
