@@ -7,7 +7,11 @@ import numpy as np
 
 # ip에 해당하는 group을 반환하는 함수
 def get_user_groups(ip):
-    groups = {}
+    """
+    :param ip: 접속한 유저의 ip 주소
+    :return: 유저가 할당된 그룹 정보, dict
+    """
+    groups = {} # 유저가 할당된 그룹 정보가 저장될 dict
     try:
         hash_indexes = UserAssignment.objects.get(ip=ip).hash_indexes # UserAssignment DB에 기록이 이미 있으면 가져온다
     except UserAssignment.DoesNotExist:
@@ -21,6 +25,12 @@ def get_user_groups(ip):
 
 # 유저를 group에 hash partition에 assign하고 DB에 기록하는 함수
 def assign(ip, experiment, hash_indexes):
+    """
+    :param ip: 접속한 유저의 ip 주소
+    :param experiment: Experiment 모델의 인스턴스, 집단을 지정할 실험
+    :param hash_indexes: 업데이트해야 할 hash indexes 정보
+    :return: 업데이트된 hash indexes, dict
+    """
     hash_id = experiment.name + ip # experiment의 이름과 ip 주소를 결합해 고유한 hash id 생성
     hash_value = hashlib.md5(hash_id.encode()).hexdigest() # md5를 이용해 hash id를 16진수의 hash value로 변환
     hash_index = int(hash_value, 16) % 1000 # hash value를 1000으로 나눈 나머지를 hash index로 지정 (0~999 사이의 값)
@@ -31,6 +41,11 @@ def assign(ip, experiment, hash_indexes):
 
 # 인수로 받은 hash index에 알맞는 group을 반환하는 함수
 def groupify(hash_index, experiment):
+    """
+    :param hash_index: 집단을 지정하기 위해 필요한 hash index
+    :param experiment: Experiment 모델의 인스턴스, 집단을 지정할 실험
+    :return: 유저가 할당된 집단 이름, str
+    """
     groups = list(experiment.group_set.all()) # 모든 group들의 list
     group_weights = []  # 해당 experiment의 group별 weight를 넣기 위한 list
     for group in groups:  # 넣는 작업

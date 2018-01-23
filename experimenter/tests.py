@@ -9,12 +9,12 @@ class ExperimentModelTests(TestCase):
 
     # end time이 start time보다 이른 경우
     def test_end_time_earlier_than_start_time(self):
-        earlier_end_time = timezone.now() - timezone.timedelta(days=7)
-        experiment = Experiment(name="experiment", end_time=earlier_end_time)
-        with self.assertRaises(ValidationError) as cm:
-            experiment.clean()
-        the_exception = cm.exception
-        self.assertEqual(the_exception.code, 'end_time_earlier_than_start_time')
+        earlier_end_time = timezone.now() - timezone.timedelta(days=7) # 시작시간을 임의로 현재시각보다 이르게 설정
+        experiment = Experiment(name="experiment", end_time=earlier_end_time) # 시작시간이 현재시각보다 이른 Experiment 인스턴스 생성
+        with self.assertRaises(ValidationError) as cm: # 에러를 관리하는 context manager 생성
+            experiment.clean() # validate
+        the_exception = cm.exception # 예외 추출
+        self.assertEqual(the_exception.code, 'end_time_earlier_than_start_time') # 예외 코드가 미리 설정한 것과 일치하는지 검증
 
     # 실제로 실험이 active할 때 active_now() 값이 True인가
     def test_active_now_true(self):
@@ -33,14 +33,14 @@ class GroupModelTests(TestCase):
 
     # weight가 0일 경우
     def test_weight_is_zero(self):
-        experiment = Experiment(name="experiment")
-        group = Group(name="group", weight=0, experiment=experiment)
-        with self.assertRaises(ValidationError) as cm:
-            group.clean()
-        the_exception = cm.exception
-        self.assertEqual(the_exception.code, 'weight_is_non_positive')
+        experiment = Experiment(name="experiment") # 임의의 Experiment 인스턴스 생성
+        group = Group(name="group", weight=0, experiment=experiment) # weight가 0인 Group 인스턴스 생성
+        with self.assertRaises(ValidationError) as cm: # context manager
+            group.clean() # validate
+        the_exception = cm.exception # 예외 추출
+        self.assertEqual(the_exception.code, 'weight_is_non_positive') # 예외 코드가 미리 설정한 것과 일치하는지 검증
 
-    # weight가 음의 정수일 경우
+    # weight가 음의 정수일 경우, 코드 구조는 위와 같음
     def test_weight_is_negative(self):
         experiment = Experiment(name="experiment")
         group = Group(name="group", weight=-3, experiment=experiment)
@@ -49,7 +49,7 @@ class GroupModelTests(TestCase):
         the_exception = cm.exception
         self.assertEqual(the_exception.code, 'weight_is_non_positive')
 
-    # ramp up percent가 0보다 작을 경우
+    # ramp up percent가 0보다 작을 경우, 코드 구조는 위와 같음
     def test_ramp_up_percent_is_less_than_zero(self):
         experiment = Experiment(name="experiment")
         group = Group(name="group", weight=1, experiment=experiment, ramp_up=True, ramp_up_percent=-30)
@@ -58,7 +58,7 @@ class GroupModelTests(TestCase):
         the_exception = cm.exception
         self.assertEqual(the_exception.code, 'ramp_up_percent_is_not_valid')
 
-    # ramp up percent가 100보다 클 경우
+    # ramp up percent가 100보다 클 경우, 코드 구조는 위와 같음
     def test_ramp_up_percent_is_greater_than_a_hundred(self):
         experiment = Experiment(name="experiment")
         group = Group(name="group", weight=1, experiment=experiment, ramp_up=True, ramp_up_percent=130)
