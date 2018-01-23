@@ -3,18 +3,17 @@ Show AB test Dashboard
 '''
 from controlcenter import Dashboard, widgets
 from controlcenter.widgets.core import WidgetMeta
-from appserver_rest.models import UserAction,UserAssignment
-from experimenter.models import Experiment,Group,Goal
+from appserver_rest.models import UserAction
+from experimenter.models import Experiment
 from reward import KPI
 from django.utils import timezone
 import datetime
 
 # Active Experiments list
 # eg) EXPERIMENTS = ['exp1', 'exp2', 'exp3', ]
-EXPERIMENTS = []
-for experiment in Experiment.objects.all():
-    EXPERIMENTS.append(experiment.name)
+EXPERIMENTS = [experiment.name for experiment in Experiment.objects.all()]
 
+# to show a list of CTR for each experiment
 class CTRList(widgets.ItemList):
     '''
     This widget displays a list of CTRs
@@ -31,6 +30,7 @@ class CTRList(widgets.ItemList):
         today = timezone.now().date()
         return kpi.CTR(*queryset, today)
 
+# to show a pie chart how users are allocated for each group in experiment
 class GroupPieChart(widgets.PieChart):
     '''
     This widget displays allocation of groups each experiment
@@ -76,13 +76,14 @@ class GroupPieChart(widgets.PieChart):
         # Displays labels in legend
         return [x+' '+y for x, y, z in self.query_list]
 
+
 class TimeLineChart(widgets.LineChart):
     # Displays orders dynamic for last 7 days
     title = 'Click-through Rate Time Series'
-    limit_to = 7
     leg_queryset = Experiment.objects.filter(group__name__isnull=False).values_list('name', 'group__name')
     val_queryset = Experiment.objects.filter(group__name__isnull=False).filter(goal__act_subject__isnull=False) \
                 .values_list('name', 'group__name', 'goal__act_subject')
+
     class Chartist:
         # visual tuning
         options = {
@@ -93,7 +94,7 @@ class TimeLineChart(widgets.LineChart):
                 },
 
             },
-            'lineSmooth':True,
+            'lineSmooth':False,
             'chartPadding': {
                 'top': 50,
                 'left': 50,
@@ -102,12 +103,20 @@ class TimeLineChart(widgets.LineChart):
             }
         }
 
+    # to specify experiment period
+    @classmethod
+    def limit_to(cls, exp_name):
+        started = [datetime['start_time'] for datetime in Experiment.objects.filter(name=exp_name).values('start_time')][0]
+        today = timezone.now()
+        elapsed_time = (today - started).days
+        limit_to = elapsed_time + 3
+        return limit_to
+
     # to specify experiment name, group name
     def legend(self):
-        #queryset = Experiment.objects.filter(group__name__isnull=False).values_list('name', 'group__name')
-        return [exp_name +' ' + group_name for exp_name, group_name in self.leg_queryset]
+        return [exp_name + ' ' + group_name for exp_name, group_name in self.leg_queryset]
     '''
-    legend queryset formatsss
+    legend queryset format
     <ExperimentQuerySet [('exp1', 'A'), ('exp1', 'B'), ('exp2', 'control'), ('exp2', 'test')]>
     '''
 
@@ -147,9 +156,6 @@ class TimeLineChart(widgets.LineChart):
 
     # to calculate values such as CTR. ex) 0.725
     def values(self):
-        #queryset = Experiment.objects.filter(group__name__isnull=False).filter(goal__act_subject__isnull=False) \
-        #   .values_list('name', 'group__name', 'goal__act_subject')
-
         kpi = KPI()
         values = dict()
         for label in self.labels:
@@ -173,9 +179,7 @@ class TimeLineChart(widgets.LineChart):
 # Metaclass arguments are: class name, base, properties.
 CTRLists = [WidgetMeta('{}CTRLists'.format(name),
                        (CTRList,),
-                       {'queryset': (CTRList
-                           .queryset
-                           .filter(name=name)),
+                       {'queryset': (CTRList.queryset.filter(name=name)),
                         'title': name + ' CTR',
                         'changelist_url': (
                             Experiment, {'Experiment__name__exact': name})}) for name in EXPERIMENTS]
@@ -191,13 +195,15 @@ TimeLineCharts = [WidgetMeta('{}TimeLineCharts'.format(name),
                        (TimeLineChart,),
                        {'leg_queryset': (TimeLineChart.leg_queryset.filter(name=name)),
                         'val_queryset': (TimeLineChart.val_queryset.filter(name=name)),
+                        'limit_to': (TimeLineChart.limit_to(name)),
                         'title': name + ' CTR TimeSeries',
                         'changelist_url': (
                             Experiment, {'Experiment__name__exact': name})}) for name in EXPERIMENTS]
 
+# Specifying which widgets to use
 class AbsusuDashboard(Dashboard):
     widgets = (
-        widgets.Group(CTRLists, width=widgets.LARGER),
-        widgets.Group(GroupPieCharts, width=widgets.SMALL),
-        widgets.Group(TimeLineCharts, width=widgets.LARGER),
-    )
+        widgets.Group(CTRLists, width=widgets.LARGE),
+        widgets.Group(GroupPieCharts, width=widgets.LARGE),
+        widgets.Group(TimeLineCharts, width=widgets.FULL),
+)

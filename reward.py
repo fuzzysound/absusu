@@ -34,16 +34,23 @@ class KPI:
         '''
         try:
             with connection.cursor() as curs:
-                # Check valid act_subject
-                act_subject_list = []
+                # check valid experiment
+                sql = 'select name from experimenter_experiment;'
+                curs.execute(sql)
+                rows = self.dictfetchall(curs)
+                experiment_list = [row['name'] for row in rows]
+
+                if experiment not in experiment_list:
+                    print('Invalid experiment')
+                    return None
+
+                # check valid act_subject
                 sql = "select g.act_subject from experimenter_goal g, experimenter_experiment e \
                                 where g.experiment_id=e.id and e.name= '%s';" % (experiment)
                 curs.execute(sql)
                 rows = self.dictfetchall(curs)
-                # append act_subject of rows to act_subject_list
-                for row in rows:
-                    act_subject_list.append(row['act_subject'])
-                # verify that act_subject is in the act_subject_list.
+                act_subject_list = [row['act_subject'] for row in rows]
+
                 if act_subject not in act_subject_list:
                     print("Invalid act_subject")
                     return None
