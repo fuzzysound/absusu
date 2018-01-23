@@ -4,6 +4,10 @@ from .models import UserAction, UserAssignment
 from experimenter.randomizer import get_user_groups
 
 class UserActionSerializer(serializers.ModelSerializer): # UserAction 모델의 serializer
+
+    url = serializers.CharField(source='get_absolute_url', read_only=True) # ListView에서 DetailView로 연결되는 hyperlink를 제공하는 필드.
+                                                           # Useraction model의 get_absolute_url() method를 가져다 쓴다.
+
     class Meta:
         model = UserAction
         fields = '__all__'
@@ -18,6 +22,9 @@ class UserActionSerializer(serializers.ModelSerializer): # UserAction 모델의 
         return super().create(validated_data)
 
 class UserAssignmentSerializer(serializers.ModelSerializer): # UserAssignment 모델의 serializer
+
+    url = serializers.CharField(source='get_absolute_url', read_only=True) # UserActionSerializer의 url과 같은 기능
+
     class Meta:
         model = UserAssignment
         fields = '__all__'

@@ -10,15 +10,15 @@ class UserActionModelTests(APITestCase):
         Experiment.objects.create_test_experiments(2)
         Group.objects.create_test_groups(2, ramp_up=False)
         # 동일한 ip로 여러 번 request 보내 response로 받은 집단이 모두 같은지 비교.
-        user_groups = []
-        for i in range(25):
-            response = self.client.post('/useractions/', {'ip': '1'}, format='json')
-            user_groups.append(response.data['groups'])
-        any_diff = 0
+        user_groups = [] # 각각의 request에 대해 response로 받은 집단 정보가 담길 리스트.
+        for i in range(25): # 25번 request를 보낸다
+            response = self.client.post('/useractions/', {'ip': '1'}, format='json') # 임의의 ip로 request 보냄
+            user_groups.append(response.data['groups']) # response에서 집단 정보를 추출해 user_groups 리스트에 추가
+        any_diff = 0 # 서로 다른 그룹의 개수가 담길 변수
         for i in range(24):
-            if user_groups[i] != user_groups[-1]:
-                any_diff += 1
-        self.assertEqual(any_diff, 0)
+            if user_groups[i] != user_groups[-1]: # 리스트의 첫 번째 요소와 나머지를 하나씩 비교한다
+                any_diff += 1 # 다른 것이 있을 때마다 기록
+        self.assertEqual(any_diff, 0) # 리스트의 모든 요소가 모두 같은가
 
     # 다른 ip일 경우 다른 집단인가. Ramp-up은 고려하지 않음.
     def test_diff_ip_diff_group(self):
