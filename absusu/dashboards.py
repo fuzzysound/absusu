@@ -54,7 +54,7 @@ class GroupPieChart(widgets.PieChart):
             'onlyInteger': True,
 
             # Visual tuning
-            'chartPadding': 20,
+            'chartPadding': 50,
             'labelDirection':'explode',
             'labelOffset':50,
 
@@ -78,7 +78,7 @@ class GroupPieChart(widgets.PieChart):
 
 
 class TimeLineChart(widgets.LineChart):
-    # Displays orders dynamic for last 7 days
+    # Display flow of CTRs during experiment
     title = 'Click-through Rate Time Series'
     leg_queryset = Experiment.objects.filter(group__name__isnull=False).values_list('name', 'group__name')
     val_queryset = Experiment.objects.filter(group__name__isnull=False).filter(goal__act_subject__isnull=False) \
@@ -105,12 +105,11 @@ class TimeLineChart(widgets.LineChart):
 
     # to specify experiment period
     @classmethod
-    def limit_to(cls, exp_name):
+    def elapsed_time(cls, exp_name):
         started = [datetime['start_time'] for datetime in Experiment.objects.filter(name=exp_name).values('start_time')][0]
         today = timezone.now()
-        elapsed_time = (today - started).days
-        limit_to = elapsed_time + 3
-        return limit_to
+        elapsed_time = (today - started).days + 2
+        return elapsed_time
 
     # to specify experiment name, group name
     def legend(self):
@@ -123,7 +122,7 @@ class TimeLineChart(widgets.LineChart):
     # to represent values on x-axis such as date. ex) 2018-01-18
     def labels(self):
         today = timezone.now().date()
-        labels = [(today - datetime.timedelta(days=x)).strftime('%Y-%m-%d') for x in range(self.limit_to)]
+        labels = [(today - datetime.timedelta(days=x)).strftime('%Y-%m-%d') for x in range(self.elapsed_time)]
         return labels
     '''
     labels format
@@ -195,7 +194,7 @@ TimeLineCharts = [WidgetMeta('{}TimeLineCharts'.format(name),
                        (TimeLineChart,),
                        {'leg_queryset': (TimeLineChart.leg_queryset.filter(name=name)),
                         'val_queryset': (TimeLineChart.val_queryset.filter(name=name)),
-                        'limit_to': (TimeLineChart.limit_to(name)),
+                        'elapsed_time': (TimeLineChart.elapsed_time(name)),
                         'title': name + ' CTR TimeSeries',
                         'changelist_url': (
                             Experiment, {'Experiment__name__exact': name})}) for name in EXPERIMENTS]
