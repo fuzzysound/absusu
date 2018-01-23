@@ -18,10 +18,6 @@ def get_default_deadline():
 # 실험을 정의하는 모델
 class Experiment(models.Model):
 
-    # default 값으로 지정하기 위한 변수들
-    start = get_default_now()
-    end = get_default_deadline()
-
     # 필드
     name = models.CharField(max_length=100, blank=False, null=True, unique=True) # 실험의 이름
     start_time = models.DateTimeField(default=get_default_now) # 실험 시작시간
