@@ -72,7 +72,7 @@ class GoalModelTests(TestCase):
 
     def test_str_is_equal_to_name(self):
         '''
-        Method `__str__` should be equal to field `name`
+        `__str__` must be equal to name field
         '''
         experiment = Experiment.objects.create(name="exp1")
         group = Group(name="group", weight=5, experiment=experiment)
@@ -80,6 +80,9 @@ class GoalModelTests(TestCase):
         self.assertEqual(str(goal),experiment.name +' '+ goal.name)
 
     def test_goal_cant_have_same_name(self):
+        '''
+        name field of each Goal model object must be unique
+        '''
         from django.db import utils
         experiment1 = Experiment.objects.create(name="exp1")
         experiment2 = Experiment.objects.create(name="exp2")
@@ -91,6 +94,9 @@ class GoalModelTests(TestCase):
         self.assertEqual(utils.IntegrityError, type(raised.exception))
 
     def test_goal_cant_have_same_act_subject(self):
+        '''
+        Act_subject field of each Goal model object must be unique
+        '''
         from django.db import utils
         experiment1 = Experiment.objects.create(name="exp1")
         experiment2 = Experiment.objects.create(name="exp2")

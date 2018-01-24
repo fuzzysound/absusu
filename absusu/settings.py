@@ -54,7 +54,7 @@ REST_FRAMEWORK = {
 }
 
 CONTROLCENTER_DASHBOARDS = (
-    ('mydash','absusu.dashboards.AbsusuDashboard'),
+    ('absusu','absusu.dashboards.AbsusuDashboard'),
 )
 
 MIDDLEWARE = [

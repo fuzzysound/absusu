@@ -2,13 +2,17 @@
 Show AB test Dashboard
 '''
 from controlcenter import Dashboard, widgets
-from appserver_rest.models import UserAction,UserAssignment
-from experimenter.models import Experiment,Group,Goal
+from controlcenter.widgets.core import WidgetMeta
+from appserver_rest.models import UserAction
+from experimenter.models import Experiment
 from reward import KPI
 from django.utils import timezone
-import datetime
 
+# Active Experiments list
+# eg) EXPERIMENTS = ['exp1', 'exp2', 'exp3', ]
+EXPERIMENTS = [experiment.name for experiment in Experiment.objects.all()]
 
+# to show a list of CTR for each experiment
 class CTRList(widgets.ItemList):
     '''
     This widget displays a list of CTRs
@@ -16,7 +20,7 @@ class CTRList(widgets.ItemList):
     title = 'Click-through Rate'
     model = Experiment
     # multiple tables inner join queryset
-    queryset = Experiment.objects.filter(group__name__isnull=False).filter(goal__act_subject__isnull=False)\
+    queryset = model.objects.filter(group__name__isnull=False).filter(goal__act_subject__isnull=False)\
         .values_list('name','group__name','goal__act_subject')
     list_display = ('name','group__name', 'goal__act_subject', 'get_ctr')
 
@@ -25,11 +29,59 @@ class CTRList(widgets.ItemList):
         today = timezone.now().date()
         return kpi.CTR(*queryset, today)
 
+# to show a pie chart how users are allocated for each group in experiment
+class GroupPieChart(widgets.PieChart):
+    '''
+    This widget displays allocation of groups each experiment
+    '''
+    title = 'User Group Allocation'
+    queryset = UserAction.objects.order_by('ip').values('ip', 'groups').distinct() \
+        .values_list('groups', flat=True)
+    queryset2 = Experiment.objects.values_list('name', 'group__name')
+    query_list = []
+    # eg)[('exp1', 'control', 2)]
 
-class MyLineChart(widgets.LineChart):
-    # Displays orders dynamic for last 7 days
+    for i in range(len(queryset2)):
+        val_list = list(queryset2[i])
+        val_count = eval("len(queryset.filter(groups__" + queryset2[i][0] + "=\'" + queryset2[i][1] + "\'))")
+        val_list.append(val_count)
+        query_list.append(tuple(val_list))
+
+    class Chartist:
+        options = {
+            # Displays only integer values on y-axis
+            'onlyInteger': True,
+
+            # Visual tuning
+            'chartPadding': 50,
+            'labelDirection':'explode',
+            'labelOffset':50,
+
+            # donut chart
+            'donut':True,
+            'donutWidth': 50,
+            'donutSolid': True,
+        }
+
+    def series(self):
+        # Y-axis
+        return [z for x, y, z in self.query_list]
+
+    def labels(self):
+        # Displays series
+        return [x+' '+y+' ('+str(z)+')' for x, y, z in self.query_list]
+
+    def legend(self):
+        # Displays labels in legend
+        return [x+' '+y for x, y, z in self.query_list]
+
+
+class TimeLineChart(widgets.LineChart):
+    # Display flow of CTRs during experiment
     title = 'Click-through Rate Time Series'
-    limit_to = 7
+    leg_queryset = Experiment.objects.filter(group__name__isnull=False).values_list('name', 'group__name')
+    val_queryset = Experiment.objects.filter(group__name__isnull=False).filter(goal__act_subject__isnull=False) \
+                .values_list('name', 'group__name', 'goal__act_subject')
 
     class Chartist:
         # visual tuning
@@ -50,10 +102,17 @@ class MyLineChart(widgets.LineChart):
             }
         }
 
+    # to specify experiment period
+    @classmethod
+    def elapsed_time(cls, exp_name):
+        started = [datetime['start_time'] for datetime in Experiment.objects.filter(name=exp_name).values('start_time')][0]
+        today = timezone.now()
+        elapsed_time = (today - started).days + 2
+        return elapsed_time
+
     # to specify experiment name, group name
     def legend(self):
-        queryset = Experiment.objects.filter(group__name__isnull=False).values_list('name', 'group__name')
-        return [exp_name +' ' + group_name for exp_name, group_name in queryset]
+        return [exp_name + ' ' + group_name for exp_name, group_name in self.leg_queryset]
     '''
     legend queryset format
     <ExperimentQuerySet [('exp1', 'A'), ('exp1', 'B'), ('exp2', 'control'), ('exp2', 'test')]>
@@ -62,7 +121,7 @@ class MyLineChart(widgets.LineChart):
     # to represent values on x-axis such as date. ex) 2018-01-18
     def labels(self):
         today = timezone.now().date()
-        labels = [(today - datetime.timedelta(days=x)).strftime('%Y-%m-%d') for x in range(self.limit_to)]
+        labels = [(today - timezone.timedelta(days=x)).strftime('%Y-%m-%d') for x in range(self.elapsed_time)]
         return labels
     '''
     labels format
@@ -95,14 +154,11 @@ class MyLineChart(widgets.LineChart):
 
     # to calculate values such as CTR. ex) 0.725
     def values(self):
-        queryset = Experiment.objects.filter(group__name__isnull=False).filter(goal__act_subject__isnull=False) \
-            .values_list('name', 'group__name', 'goal__act_subject')
-
         kpi = KPI()
         values = dict()
         for label in self.labels:
             alist = list()
-            for exp_name, group_name, act_subject in queryset:
+            for exp_name, group_name, act_subject in self.val_queryset:
                 alist.append(kpi.CTR(exp_name, group_name, act_subject, label))
             values[label] = alist
         return values
@@ -118,59 +174,34 @@ class MyLineChart(widgets.LineChart):
         }
     '''
 
+# Metaclass arguments are: class name, base, properties.
+CTRLists = [WidgetMeta('{}CTRLists'.format(name),
+                       (CTRList,),
+                       {'queryset': (CTRList.queryset.filter(name=name)),
+                        'title': name + ' CTR',
+                        'changelist_url': (
+                            Experiment, {'Experiment__name__exact': name})}) for name in EXPERIMENTS]
 
-class GroupPieChart(widgets.PieChart):
-    '''
-    This widget displays allocation of groups each experiment
-    '''
-    title = 'User Group Allocation'
+GroupPieCharts = [WidgetMeta('{}GroupPieCharts'.format(name),
+                       (GroupPieChart,),
+                       {'query_list': ([t for t in GroupPieChart.query_list if t[0].startswith(name)]),
+                        'title': name + ' User Group',
+                        'changelist_url': (
+                            Experiment, {'Experiment__name__exact': name})}) for name in EXPERIMENTS]
 
-    class Chartist:
-        options = {
-            # Displays only integer values on y-axis
-            'onlyInteger': True,
+TimeLineCharts = [WidgetMeta('{}TimeLineCharts'.format(name),
+                       (TimeLineChart,),
+                       {'leg_queryset': (TimeLineChart.leg_queryset.filter(name=name)),
+                        'val_queryset': (TimeLineChart.val_queryset.filter(name=name)),
+                        'elapsed_time': (TimeLineChart.elapsed_time(name)),
+                        'title': name + ' CTR TimeSeries',
+                        'changelist_url': (
+                            Experiment, {'Experiment__name__exact': name})}) for name in EXPERIMENTS]
 
-            # Visual tuning
-            'chartPadding': 20,
-            'labelDirection':'explode',
-            'labelOffset':30,
-
-            # donut chart
-            'donut':True,
-            'donutWidth': 50,
-            'donutSolid': True,
-        }
-
-    def series(self):
-        # Y-axis
-        return [z for x, y, z in self.values]
-
-    def labels(self):
-        # Displays series
-        return [x+' '+y+'('+str(z)+')' for x, y, z in self.values]
-
-    def legend(self):
-        # Displays labels in legend
-        return [x+' '+y for x, y, z in self.values]
-
-    def values(self):
-        # Returns a list of tuple type by each element
-        # eg)[('exp1', 'control', 2)]
-        queryset = UserAction.objects.order_by('ip').values('ip','groups').distinct()\
-        .values_list('groups',flat=True)
-        queryset2 = Experiment.objects.values_list('name','group__name')
-        query_list = []
-
-        for i in range(len(queryset2)):
-            val_list = list(queryset2[i])
-            val_count = eval("len(queryset.filter(groups__" + queryset2[i][0] + "=\'" + queryset2[i][1] + "\'))")
-            val_list.append(val_count)
-            query_list.append(tuple(val_list))
-        return query_list
-
+# Specifying which widgets to use
 class AbsusuDashboard(Dashboard):
     widgets = (
-        widgets.Group([CTRList], width=widgets.LARGER),
-        widgets.Group([GroupPieChart], width=widgets.SMALL),
-        widgets.Group([MyLineChart], width=widgets.LARGER),
-    )
+        widgets.Group(CTRLists, width=widgets.LARGE),
+        widgets.Group(GroupPieCharts, width=widgets.LARGE),
+        widgets.Group(TimeLineCharts, width=widgets.FULL),
+)

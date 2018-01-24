@@ -103,14 +103,15 @@ class Goal(models.Model):
         ('pageviews', "Pageviews"),
     ) # widget에 나타나는 형식을 바꾸기 위한 tuple
 
-    #field
+    # 필드
     name = models.CharField(max_length=100, blank=False, null=True, unique=True)
     track = models.CharField(max_length=10, choices = SUBJECT_CHOICES, default='clicks')
     act_subject = models.CharField(max_length=100, blank=False, null=True)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = (('track','act_subject'),)
+        unique_together = (('track','act_subject'),) # track과 act_subject를 묶어서 유일하게
 
+    # 출력 형식
     def __str__(self):
-        return '%s %s' % (self.experiment, self.name)
+        return '%s %s' % (self.experiment, self.name) # 실험과 목표를 출력
