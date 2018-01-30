@@ -7,6 +7,7 @@ from appserver_rest.models import UserAction
 from experimenter.models import Experiment
 from reward import KPI
 from django.utils import timezone
+from controlcenter import app_settings
 
 # Active Experiments list
 # eg) EXPERIMENTS = ['exp1', 'exp2', 'exp3', ]
@@ -22,12 +23,18 @@ class CTRList(widgets.ItemList):
     # multiple tables inner join queryset
     queryset = model.objects.filter(group__name__isnull=False).filter(goal__act_subject__isnull=False)\
         .values_list('name','group__name','goal__act_subject')
-    list_display = ('name','group__name', 'goal__act_subject', 'get_ctr')
+    list_display = ('name','group__name', 'goal__act_subject', 'get_ctr', 'get_stayTime', )
+    # make the chart sortable by field
+    sortable = True
 
     def get_ctr(self, queryset):
         kpi = KPI()
         today = timezone.now().date()
         return kpi.CTR(*queryset, today)
+
+    def get_stayTime(self, queryset):
+        kpi = KPI()
+        return kpi.stayTime(*queryset)
 
 # to show a pie chart how users are allocated for each group in experiment
 class GroupPieChart(widgets.PieChart):
