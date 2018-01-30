@@ -35,7 +35,8 @@ class GroupPieChart(widgets.PieChart):
     This widget displays allocation of groups each experiment
     '''
     title = 'User Group Allocation'
-    queryset = UserAction.objects.order_by('ip').values('ip', 'groups').distinct() \
+    model = UserAction
+    queryset = model.objects.order_by('ip').values('ip', 'groups').distinct()\
         .values_list('groups', flat=True)
     queryset2 = Experiment.objects.values_list('name', 'group__name')
     query_list = []
@@ -107,7 +108,7 @@ class TimeLineChart(widgets.LineChart):
     def elapsed_time(cls, exp_name):
         started = [datetime['start_time'] for datetime in Experiment.objects.filter(name=exp_name).values('start_time')][0]
         today = timezone.now()
-        elapsed_time = (today - started).days + 2
+        elapsed_time = (today - started).days + 3
         return elapsed_time
 
     # to specify experiment name, group name
