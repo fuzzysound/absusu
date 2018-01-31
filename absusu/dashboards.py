@@ -7,6 +7,7 @@ from appserver_rest.models import UserAction
 from experimenter.models import Experiment
 from reward import KPI
 from django.utils import timezone
+from collections import Counter
 
 # Active Experiments list
 # eg) EXPERIMENTS = ['exp1', 'exp2', 'exp3', ]
@@ -27,7 +28,7 @@ class CTRList(widgets.ItemList):
     def get_ctr(self, queryset):
         kpi = KPI()
         today = timezone.now().date()
-        return kpi.CTR(*queryset, today)
+        return "%.2f%%" % (kpi.CTR(*queryset, today) * 100.0)
 
 # to show a pie chart how users are allocated for each group in experiment
 class GroupPieChart(widgets.PieChart):
@@ -35,18 +36,9 @@ class GroupPieChart(widgets.PieChart):
     This widget displays allocation of groups each experiment
     '''
     title = 'User Group Allocation'
-    model = UserAction
-    queryset = model.objects.order_by('ip').values('ip', 'groups').distinct()\
-        .values_list('groups', flat=True)
-    queryset2 = Experiment.objects.values_list('name', 'group__name')
-    query_list = []
-    # eg)[('exp1', 'control', 2)]
-
-    for i in range(len(queryset2)):
-        val_list = list(queryset2[i])
-        val_count = eval("len(queryset.filter(groups__" + queryset2[i][0] + "=\'" + queryset2[i][1] + "\'))")
-        val_list.append(val_count)
-        query_list.append(tuple(val_list))
+    val_queryset = UserAction.objects.order_by('ip').distinct()
+    leg_queryset = Experiment.objects.filter(group__name__isnull=False)
+    experiment = None
 
     class Chartist:
         options = {
@@ -56,33 +48,47 @@ class GroupPieChart(widgets.PieChart):
             # Visual tuning
             'chartPadding': 50,
             'labelDirection':'explode',
-            'labelOffset':50,
+            'labelOffset': 50,
 
             # donut chart
             'donut':True,
             'donutWidth': 50,
             'donutSolid': True,
         }
-
     def series(self):
         # Y-axis
-        return [z for x, y, z in self.query_list]
+        self.val_queryset = self.val_queryset.values_list('groups',flat=True)
+        groups = []
+        for i in range(len(self.val_queryset)):
+            groups.append(self.val_queryset[i][self.experiment])
+        return [i for i in Counter(groups).values()]
 
     def labels(self):
         # Displays series
-        return [x+' '+y+' ('+str(z)+')' for x, y, z in self.query_list]
+        self.val_queryset = self.val_queryset.values_list('groups', flat=True)
+        groups = []
+        for i in range(len(self.val_queryset)):
+            groups.append(self.val_queryset[i][self.experiment])
+        return ["%.f%%" %(i/len(groups) * 100.0) for i in Counter(groups).values()]
+        #return [i[0] +' ('+str(i[1])+')' for i in Counter(groups).items()]
 
     def legend(self):
         # Displays labels in legend
-        return [x+' '+y for x, y, z in self.query_list]
+        '''
+        self.queryset = self.queryset.values_list('groups', flat=True)
+        groups = []
+        for i in range(len(self.queryset)):
+            groups.append(self.queryset[i][self.experiment])
+        return [i for i in Counter(groups).keys()]
+        '''
+        return [group_name for exp_name, group_name in self.leg_queryset.values_list('name', 'group__name')]
 
 
 class TimeLineChart(widgets.LineChart):
     # Display flow of CTRs during experiment
     title = 'Click-through Rate Time Series'
-    leg_queryset = Experiment.objects.filter(group__name__isnull=False).values_list('name', 'group__name')
-    val_queryset = Experiment.objects.filter(group__name__isnull=False).filter(goal__act_subject__isnull=False) \
-                .values_list('name', 'group__name', 'goal__act_subject')
+    val_queryset = Experiment.objects.filter(group__name__isnull=False).filter(goal__act_subject__isnull=False)
+    leg_queryset = Experiment.objects.filter(group__name__isnull=False)
 
     class Chartist:
         # visual tuning
@@ -113,7 +119,7 @@ class TimeLineChart(widgets.LineChart):
 
     # to specify experiment name, group name
     def legend(self):
-        return [exp_name + ' ' + group_name for exp_name, group_name in self.leg_queryset]
+        return [group_name for exp_name, group_name in self.leg_queryset.values_list('name', 'group__name')]
     '''
     legend queryset format
     <ExperimentQuerySet [('exp1', 'A'), ('exp1', 'B'), ('exp2', 'control'), ('exp2', 'test')]>
@@ -159,8 +165,8 @@ class TimeLineChart(widgets.LineChart):
         values = dict()
         for label in self.labels:
             alist = list()
-            for exp_name, group_name, act_subject in self.val_queryset:
-                alist.append(kpi.CTR(exp_name, group_name, act_subject, label))
+            for exp_name, group_name, act_subject in self.val_queryset.values_list('name', 'group__name', 'goal__act_subject'):
+                alist.append("%.2f" % (kpi.CTR(exp_name, group_name, act_subject, label)))
             values[label] = alist
         return values
     '''
@@ -185,15 +191,17 @@ CTRLists = [WidgetMeta('{}CTRLists'.format(name),
 
 GroupPieCharts = [WidgetMeta('{}GroupPieCharts'.format(name),
                        (GroupPieChart,),
-                       {'query_list': ([t for t in GroupPieChart.query_list if t[0].startswith(name)]),
+                       {'val_queryset': (GroupPieChart.val_queryset.filter(groups__has_key=name)),
+                        'leg_queryset': (GroupPieChart.leg_queryset.filter(name=name)),
                         'title': name + ' User Group',
+                        'experiment': name,
                         'changelist_url': (
                             Experiment, {'Experiment__name__exact': name})}) for name in EXPERIMENTS]
 
 TimeLineCharts = [WidgetMeta('{}TimeLineCharts'.format(name),
                        (TimeLineChart,),
-                       {'leg_queryset': (TimeLineChart.leg_queryset.filter(name=name)),
-                        'val_queryset': (TimeLineChart.val_queryset.filter(name=name)),
+                       {'val_queryset': (TimeLineChart.val_queryset.filter(name=name)),
+                        'leg_queryset': (TimeLineChart.leg_queryset.filter(name=name)),
                         'elapsed_time': (TimeLineChart.elapsed_time(name)),
                         'title': name + ' CTR TimeSeries',
                         'changelist_url': (
