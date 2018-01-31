@@ -34,7 +34,8 @@ class CTRList(widgets.ItemList):
 
     def get_stayTime(self, queryset):
         kpi = KPI()
-        return kpi.stayTime(*queryset)
+        today = timezone.now().date()
+        return kpi.stayTime(*queryset, today)
 
 # to show a pie chart how users are allocated for each group in experiment
 class GroupPieChart(widgets.PieChart):
@@ -81,7 +82,6 @@ class GroupPieChart(widgets.PieChart):
     def legend(self):
         # Displays labels in legend
         return [x+' '+y for x, y, z in self.query_list]
-
 
 class TimeLineChart(widgets.LineChart):
     # Display flow of CTRs during experiment
@@ -181,6 +181,20 @@ class TimeLineChart(widgets.LineChart):
         }
     '''
 
+class StayTimeLineChart(TimeLineChart):
+    title = "Stay Time"
+
+    # to calculate values such as stay time. ex) 18.28
+    def values(self):
+        kpi = KPI()
+        values = dict()
+        for label in self.labels:
+            alist = list()
+            for exp_name, group_name, act_subject in self.val_queryset:
+                alist.append(kpi.stayTime(exp_name, group_name, act_subject, label))
+            values[label] = alist
+        return values
+
 # Metaclass arguments are: class name, base, properties.
 CTRLists = [WidgetMeta('{}CTRLists'.format(name),
                        (CTRList,),
@@ -201,7 +215,16 @@ TimeLineCharts = [WidgetMeta('{}TimeLineCharts'.format(name),
                        {'leg_queryset': (TimeLineChart.leg_queryset.filter(name=name)),
                         'val_queryset': (TimeLineChart.val_queryset.filter(name=name)),
                         'elapsed_time': (TimeLineChart.elapsed_time(name)),
-                        'title': name + ' CTR TimeSeries',
+                        'title': name + ' CTR',
+                        'changelist_url': (
+                            Experiment, {'Experiment__name__exact': name})}) for name in EXPERIMENTS]
+
+StayTimeLineCharts = [WidgetMeta('{}StayTimeLineCharts'.format(name),
+                       (StayTimeLineChart,),
+                       {'leg_queryset': (StayTimeLineChart.leg_queryset.filter(name=name)),
+                        'val_queryset': (StayTimeLineChart.val_queryset.filter(name=name)),
+                        'elapsed_time': (StayTimeLineChart.elapsed_time(name)),
+                        'title': name + ' Stay Time',
                         'changelist_url': (
                             Experiment, {'Experiment__name__exact': name})}) for name in EXPERIMENTS]
 
@@ -211,4 +234,5 @@ class AbsusuDashboard(Dashboard):
         widgets.Group(CTRLists, width=widgets.LARGE),
         widgets.Group(GroupPieCharts, width=widgets.LARGE),
         widgets.Group(TimeLineCharts, width=widgets.FULL),
+        widgets.Group(StayTimeLineCharts, width=widgets.FULL),
 )

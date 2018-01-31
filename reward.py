@@ -86,20 +86,21 @@ class KPI:
             # print(e)
 
     # Caculating how long user stay at the page
-    def stayTime(self, experiment, group, act_subject):
+    def stayTime(self, experiment, group, act_subject, date):
         '''
 
         :param experiment: experiment to calculate
         :param group: group to calculate under the experiment
         :param act_subject: click-through rate target which is actually not used here, but queryset efficient
-        :return: 'stay time' which describes how long user stays at the page
+        :param date: specify date to calculate stay time
+        :return: 'stay time' which describes how long user stays at the page in seconds
         '''
         try:
             if self.validExp(experiment):
                 with connection.cursor() as curs:
                     # get useractions per experiment and group
-                    sql = "select * from appserver_rest_useraction where json_extract(groups,'$.%s')='%s';" \
-                          % (experiment, group)
+                    sql = "select * from appserver_rest_useraction where json_extract(groups,'$.%s')='%s' and time < '%s' + INTERVAL 1 DAY;" \
+                          % (experiment, group, date)
                     curs.execute(sql)
                     useractions = self.dictfetchall(curs)
                     time_dictionary = dict()
@@ -127,12 +128,12 @@ class KPI:
                                 pass
 
                     avg_stay_time = reduce(lambda x, y: x + y, stay_time_list) / len(stay_time_list)
-                    return avg_stay_time
+                    return round(avg_stay_time, 3)
 
         except Exception as e:
-            return None
-            # to make time series in dashboard.py reasonable, we need 0 when useraction does not occur
-            # print(e)
+            # to make StayTimeLineChart in dashboard.py reasonable, we need 0 when useraction does not occur
+            return 0
+            #return None
 
 '''
 # Example usage
