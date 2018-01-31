@@ -72,7 +72,7 @@ class KPI:
                         clicks += 1
                 ctr = clicks / impressions
 
-                return round(ctr, 3)
+                return ctr
 
         except Exception as e:
             return 0

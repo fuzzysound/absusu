@@ -57,6 +57,8 @@ CONTROLCENTER_DASHBOARDS = (
     ('absusu','absusu.dashboards.AbsusuDashboard'),
 )
 
+CONTROLCENTER_CHARTIST_COLORS = 'material'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

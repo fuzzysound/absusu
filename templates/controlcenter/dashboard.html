@@ -1,3 +1,6 @@
+<script type="text/javascript">
+    setInterval('window.location.reload(true)', 10000);
+</script>
 {% extends "admin/base_site.html" %}
 {% load cache controlcenter_tags %}
 
@@ -7,9 +10,6 @@
     {{ dashboard.media }}
 {% endblock %}
 {% block content %}
-<script type="text/javascript">
-    setInterval('window.location.reload(true)', 5000);
-</script>
 <div class="controlcenter" id="{{ dashboard.slug }}">
     {% if dashboards|length > 1 %}
         <nav class="controlcenter__nav">
@@ -30,13 +30,7 @@
                         {% for widget in group %}
                             <div class="controlcenter__widget__tab{% if forloop.first %} controlcenter__widget__tab--active{% endif %}">{{ widget.title }}</div>
                             <div class="controlcenter__widget__body" {% if group.get_height %}style="max-height:{{ group.get_height  }}px"{% endif %}>
-                                {% if widget.cache_timeout %}
-                                    {% cache widget.cache_timeout controlcenter_widget widget.slug %}
-                                        {% include widget.get_template_name %}
-                                    {% endcache %}
-                                {% else %}
-                                    {% include widget.get_template_name %}
-                                {% endif %}
+                                {% include widget.get_template_name %}
                             </div>
                             {% if widget.changelist_url %}
                                 <a class="controlcenter__widget__out" href="{{ widget|changelist_url }}" title="Show more"></a>
