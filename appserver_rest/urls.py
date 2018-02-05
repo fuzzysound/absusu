@@ -12,4 +12,3 @@ urlpatterns = [
     url(r'^', include(router.urls)), # router 적용
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')) # 관리자 로그인 기능 추가
 ]
-

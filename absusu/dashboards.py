@@ -55,32 +55,25 @@ class GroupPieChart(widgets.PieChart):
             'donutWidth': 50,
             'donutSolid': True,
         }
-    def series(self):
-        # Y-axis
-        self.val_queryset = self.val_queryset.values_list('groups',flat=True)
-        groups = []
-        for i in range(len(self.val_queryset)):
-            groups.append(self.val_queryset[i][self.experiment])
-        return [i for i in Counter(groups).values()]
 
-    def labels(self):
-        # Displays series
+    def values(self):
+        # Manipulate val_queryset
         self.val_queryset = self.val_queryset.values_list('groups', flat=True)
         groups = []
         for i in range(len(self.val_queryset)):
             groups.append(self.val_queryset[i][self.experiment])
-        return ["%.f%%" %(i/len(groups) * 100.0) for i in Counter(groups).values()]
-        #return [i[0] +' ('+str(i[1])+')' for i in Counter(groups).items()]
+        return Counter(groups).values()
+
+    def series(self):
+        # Y-axis
+        return [i for i in self.values]
+
+    def labels(self):
+        # Displays series
+        return ["%.f%%" %(i/sum(self.values) * 100.0) for i in self.values]
 
     def legend(self):
         # Displays labels in legend
-        '''
-        self.queryset = self.queryset.values_list('groups', flat=True)
-        groups = []
-        for i in range(len(self.queryset)):
-            groups.append(self.queryset[i][self.experiment])
-        return [i for i in Counter(groups).keys()]
-        '''
         return [group_name for exp_name, group_name in self.leg_queryset.values_list('name', 'group__name')]
 
 

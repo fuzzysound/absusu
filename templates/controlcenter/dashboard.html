@@ -1,6 +1,21 @@
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script type="text/javascript">
-    setInterval('window.location.reload(true)', 10000);
+ //update data every 5 seconds
+    $(function (){
+        setInterval(function (){
+
+            $.ajax({
+                type:"GET",
+                url: "",
+                success: function (data) {
+                    $('#content').html($(data).find('#content').html());
+                }
+            });
+
+        },5000);
+    });
 </script>
+
 {% extends "admin/base_site.html" %}
 {% load cache controlcenter_tags %}
 
@@ -30,7 +45,13 @@
                         {% for widget in group %}
                             <div class="controlcenter__widget__tab{% if forloop.first %} controlcenter__widget__tab--active{% endif %}">{{ widget.title }}</div>
                             <div class="controlcenter__widget__body" {% if group.get_height %}style="max-height:{{ group.get_height  }}px"{% endif %}>
-                                {% include widget.get_template_name %}
+                                {% if widget.cache_timeout %}
+                                    {% cache widget.cache_timeout controlcenter_widget widget.slug %}
+                                        {% include widget.get_template_name %}
+                                    {% endcache %}
+                                {% else %}
+                                    {% include widget.get_template_name %}
+                                {% endif %}
                             </div>
                             {% if widget.changelist_url %}
                                 <a class="controlcenter__widget__out" href="{{ widget|changelist_url }}" title="Show more"></a>
