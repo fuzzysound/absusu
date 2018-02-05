@@ -7,4 +7,3 @@ urlpatterns = [
     url(r'^', include('appserver_rest.urls')),
     url(r'^admin/', admin.site.urls),
 ]
-

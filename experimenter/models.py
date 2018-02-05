@@ -43,8 +43,8 @@ class Experiment(models.Model):
     def clean(self, *args, **kwargs):
 
         # 시작 시간이 지금보다 이전일 경우
-        if self.start_time < timezone.now():
-            self.start_time = timezone.now() # 시작 시간을 지금으로 맞춰준다
+        #if self.start_time < timezone.now():
+        #    self.start_time = timezone.now() # 시작 시간을 지금으로 맞춰준다
 
         # 종료 시간이 시작 시간보다 이전일 경우
         if self.end_time < self.start_time:
