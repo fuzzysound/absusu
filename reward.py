@@ -85,6 +85,8 @@ class KPI:
             # to make time series in dashboard.py reasonable, we need 0 when useraction does not occur
             # print(e)
 
+
+    # action을 page_leave로 바꾸었을 경우.
     # Caculating how long user stay at the page
     def stayTime(self, experiment, group, act_subject, date):
         '''
@@ -119,7 +121,7 @@ class KPI:
 
                         # same ip가 exp1_view - exp2_view - button2_click 상황에서 exp1_view와 button2_click 사이 시간이 계산되는 오류해결.
                         # 한 가지 실험에 여러 act_subject가 있다하더라도 동일한 페이지에서 활성화되므로 여러 button들이 있는 것은 괜찮음.
-                        elif action['action'].split('_')[0] in act_subject_list and 'click' in action['action']:
+                        elif action['action'].split('_')[0] in act_subject_list and 'leave' in action['action']:
                             if time_dictionary.get(action['ip'], None):
                                 stay_time = action['time'] - time_dictionary.pop(action['ip'], None) # to make it memory efficient
                                 stay_time_list.append(stay_time.total_seconds())
@@ -127,6 +129,7 @@ class KPI:
                             else:
                                 pass
 
+                    #return stay_time_list
                     avg_stay_time = reduce(lambda x, y: x + y, stay_time_list) / len(stay_time_list)
                     return round(avg_stay_time, 3)
 
@@ -134,6 +137,7 @@ class KPI:
             # to make StayTimeLineChart in dashboard.py reasonable, we need 0 when useraction does not occur
             return 0
             #return None
+
 
 '''
 # Example usage
