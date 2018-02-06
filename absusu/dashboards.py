@@ -102,6 +102,7 @@ class TimeLineChart(widgets.LineChart):
             }
         }
 
+
     # to specify experiment period
     @classmethod
     def elapsed_time(cls, exp_name):
