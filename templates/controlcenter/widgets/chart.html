@@ -1,0 +1,57 @@
+{% load controlcenter_tags %}
+<div id="chart_{{ widget.slug }}" class="ct-chart ct-{{ widget.chartist.scale }}"></div>
+{% if widget.labels and widget.series %}
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script type="text/javascript">
+    var chart_{{ widget.slug }} = null;
+    (function(){
+        var data = {
+          labels: {{ widget.labels|jsonify }},
+          series: {{ widget.series|jsonify }}
+        };
+
+        var options = ({{ widget.chartist.options|jsonify }} || {});
+
+        {% if widget.chartist.klass == 'Line' and widget.chartist.point_lables %}
+            options.plugins = [
+                Chartist.plugins.ctPointLabels({
+                  textAnchor: 'middle'
+                })
+            ];
+        {% endif %}
+
+        chart_{{ widget.slug }} = new Chartist.{{ widget.chartist.klass }}('#chart_{{ widget.slug }}', data, options);
+    })();
+    $(function (){
+        setInterval(function (){
+
+            $.ajax({
+                type:"GET",
+                url: "",
+                success: function (data) {
+                    var html = $(data).filter('#chart_{{ widget.slug }}').attr();
+                    var json = JSON.stringify(html);
+                    alert(html);
+                    data = {
+                        
+                    };
+                    chart_{{ widget.slug }}.update();
+                }
+            });
+
+        },2000);
+    });
+</script>
+{% endif %}
+{% if widget.legend %}
+<div class="controlcenter__chart-legend">
+    <div class="controlcenter__chart-legend__offset">
+        {% for series in widget.legend %}
+            <div class="controlcenter__chart-legend__series">
+                <div class="controlcenter__chart-legend__series__color ct-legend-{{ forloop.counter0|legend_color }}"></div>
+                <div class="controlcenter__chart-legend__series__label">{{ series }}</div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
