@@ -9,6 +9,7 @@ from reward import KPI
 from django.utils import timezone
 from collections import Counter
 
+
 # Active Experiments list
 # eg) EXPERIMENTS = ['exp1', 'exp2', 'exp3', ]
 EXPERIMENTS = [experiment.name for experiment in Experiment.objects.all()]
@@ -20,6 +21,7 @@ class CTRList(widgets.ItemList):
     '''
     title = 'Click-through Rate'
     model = Experiment
+    width = widgets.LARGE
     # multiple tables inner join queryset
     queryset = model.objects.filter(group__name__isnull=False).filter(goal__act_subject__isnull=False)\
         .values_list('name','group__name','goal__act_subject')
@@ -51,7 +53,7 @@ class GroupPieChart(widgets.PieChart):
             'labelOffset': 50,
 
             # donut chart
-            'donut':True,
+            'donut': True,
             'donutWidth': 50,
             'donutSolid': True,
         }
