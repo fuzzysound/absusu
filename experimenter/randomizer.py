@@ -64,7 +64,8 @@ def groupify(hash_index, experiment):
     else: # 있어서는 안 될 경우
         return ""
 
-    if assigned_group.control or not assigned_group.ramp_up: # assign된 group이 control group이거나 ramp up을 사용하지 않는 경우
+    if experiment.algorithm == 'bandit' or assigned_group.control or not assigned_group.ramp_up:
+        # Bandit algorithm을 사용하거나 assign된 group이 control group이거나 ramp up을 사용하지 않는 경우
         return assigned_group.name # 그대로 assign된 group의 이름 반환
     else: # ramp up을 사용하는 경우
         rampup_separator = left_separator + (right_separator-left_separator)*assigned_group.ramp_up_percent/100 # 새로운 기준숫자

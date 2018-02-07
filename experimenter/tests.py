@@ -28,6 +28,22 @@ class ExperimentModelTests(TestCase):
         time.sleep(0.00000011) # 만약을 위해 아주 약간 pause
         self.assertIs(experiment.active_now(), False)
 
+    # assignment update interval이 0일 경우
+    def test_assignment_update_interval_is_zero(self):
+        experiment = Experiment(name="experiment", algorithm='bandit', assignment_update_interval=0)
+        with self.assertRaises(ValidationError) as cm:
+            experiment.clean()
+        the_exception = cm.exception
+        self.assertEqual(the_exception.code, 'assignment_update_interval_not_positive')
+
+    # assignment update interval이 음수일 경우
+    def test_assignment_update_interval_is_negative(self):
+        experiment = Experiment(name="experiment", algorithm='bandit', assignment_update_interval=-24)
+        with self.assertRaises(ValidationError) as cm:
+            experiment.clean()
+        the_exception = cm.exception
+        self.assertEqual(the_exception.code, 'assignment_update_interval_not_positive')
+
 
 class GroupModelTests(TestCase):
 

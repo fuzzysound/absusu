@@ -3,7 +3,9 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-from .managers import ExperimentManager, GroupManager
+from .managers import ExperimentManager, GroupManager, GoalManager
+from .bandit import Bandit
+from threading import Timer
 
 # default 값을 생성하기 위한 함수들
 
@@ -18,16 +20,22 @@ def get_default_deadline():
 # 실험을 정의하는 모델
 class Experiment(models.Model):
 
+    # simple은 기본 A/B test, bandit은 multi-armed bandit
+    ALGORITHM_CHOICES = (('simple', "Simple"), ('bandit', "Multi-armed Bandit"))
+
     # 필드
     name = models.CharField(max_length=100, blank=False, null=True, unique=True) # 실험의 이름
     start_time = models.DateTimeField(default=get_default_now) # 실험 시작시간
     end_time = models.DateTimeField(default=get_default_deadline) # 실험 종료시간
+    algorithm = models.CharField(max_length=100, choices=ALGORITHM_CHOICES, default='simple') # 사용할 테스트 알고리즘
+    assignment_update_interval = models.FloatField(default=24) # must be positive
 
     # Custom manager
     objects = ExperimentManager()
 
     # 만약 migration할 때 table doesn't exist 에러가 발생한다면: http://techstream.org/Bits/Recover-dropped-table-in-Django
     # 만약 test할 때 naive datetime 워닝이 발생한다면: experimenter/migrations 디렉토리에서 __init__.py 빼고 모두 제거
+
 
     # 출력 형식
     def __str__(self):
@@ -39,16 +47,27 @@ class Experiment(models.Model):
     active_now.short_description = "Active" # 관리자 페이지에 표시될 열 이름
     active_now.boolean = True # 아이콘으로 표시
 
+    # Bandit algorithm을 활성화하는 method. 관리자 페이지에서 모델 저장할 때 호출됨.
+    def activate_bandit(self):
+        self.bandit = Bandit(self) # 모델 애트리뷰트로 Bandit 클래스 인스턴스 생성
+        if self.start_time <= timezone.now(): # 만약 실험 시작시간이 지금보다 이르면
+            self.bandit.update_weights() # 바로 활성화
+        else: # 그 외에는
+            Timer((self.start_time - timezone.now()).seconds, self.bandit.update_weights).start()
+            # 실험 시작시간에 활성화하도록 타이머 생성
+
+
     # Model validation method
     def clean(self, *args, **kwargs):
-
-        # 시작 시간이 지금보다 이전일 경우
-        if self.start_time < timezone.now():
-            self.start_time = timezone.now() # 시작 시간을 지금으로 맞춰준다
 
         # 종료 시간이 시작 시간보다 이전일 경우
         if self.end_time < self.start_time:
             raise ValidationError(_("End time must be later than start time!"), code='end_time_earlier_than_start_time')
+
+        # assignment update interval이 양수가 아닐 경우
+        if self.assignment_update_interval <= 0:
+            raise ValidationError(_("Assignment update interval must be positive!"),
+                                  code='assignment_update_interval_not_positive')
 
         super(Experiment, self).clean(*args, **kwargs)
 
@@ -64,7 +83,7 @@ class Group(models.Model):
 
     # 필드
     name = models.CharField(max_length=100, blank=False, null=True) # 집단의 이름
-    weight = models.IntegerField() # 집단에 피험자가 배정되는 비중
+    weight = models.IntegerField(default=1) # 집단에 피험자가 배정되는 비중
     control = models.BooleanField(default=False, choices=BOOLEAN_CHOICES) # 이 집단이 통제집단인가?
     ramp_up = models.BooleanField(default=False, choices=BOOLEAN_CHOICES) # 이 집단에 ramp up을 사용할 것인가?
     ramp_up_percent = models.FloatField(default=0.5) # ramp up을 사용할 경우 피험자를 몇 %나 배정할 것인지, must be between 0 and 100
@@ -108,6 +127,9 @@ class Goal(models.Model):
     track = models.CharField(max_length=10, choices = SUBJECT_CHOICES, default='clicks')
     act_subject = models.CharField(max_length=100, blank=False, null=True)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+
+    # Custom manager
+    objects = GoalManager()
 
     class Meta:
         unique_together = (('track','act_subject'),)
