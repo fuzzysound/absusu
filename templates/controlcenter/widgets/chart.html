@@ -22,27 +22,41 @@
 
         chart_{{ widget.slug }} = new Chartist.{{ widget.chartist.klass }}('#chart_{{ widget.slug }}', data, options);
     })();
-    $(function (){
-        setInterval(function (){
+    {% if widget.chartist.klass == 'Line' and widget.chartist.point_lables %}
+        $(function (){
+            setInterval(function (){
 
-            $.ajax({
-                type:"GET",
-                url: "",
-                success: function (data) {
-                    var html = $(data).filter('#chart_{{ widget.slug }}').attr();
-                    var json = JSON.stringify(html);
-                    alert(html);
-                    data = {
-                        
-                    };
-                    chart_{{ widget.slug }}.update();
-                }
-            });
+                $.ajax({
+                    type:"GET",
+                    url: "{% url 'line_data' %}",
+                    data: {'exp': '{{ widget.slug }}'.slice(0,4)},
+                    dataType: "json",
+                    success: function (data) {
+                        chart_{{ widget.slug }}.update(data);
+                    }
+                });
 
-        },2000);
-    });
-</script>
+            },3000);
+        });
+    {% else %}
+        $(function (){
+            setInterval(function (){
+
+                $.ajax({
+                    type:"GET",
+                    url: "{% url 'pie_data' %}",
+                    data: {'exp': '{{ widget.slug }}'.slice(0,4)},
+                    dataType: "json",
+                    success: function (data) {
+                        chart_{{ widget.slug }}.update(data);
+                    }
+                });
+
+            },3000);
+        });
+    {% endif %}
 {% endif %}
+</script>
 {% if widget.legend %}
 <div class="controlcenter__chart-legend">
     <div class="controlcenter__chart-legend__offset">

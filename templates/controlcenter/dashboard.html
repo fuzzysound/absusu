@@ -1,20 +1,43 @@
+<!--<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>-->
+<!--<script type="text/javascript">-->
+    <!--setInterval(function () {-->
+        <!--var id = '#' + $('[id*="ctrlists"]').attr("id").toString();-->
+        <!--// var bid = ' '+id+'>*';-->
+        <!--var bid = ' '+id;-->
+        <!--$(id).load( + bid);-->
+        <!--}, 2000);-->
+<!--</script>-->
+<!--<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>-->
+<!--<script type="text/javascript">-->
+    <!--setInterval(function () {-->
+        <!--$.ajax({-->
+            <!--context: this,-->
+            <!--type:"GET",-->
+            <!--url:"",-->
+            <!--success: function (){-->
+                <!--id = $('[id*="ctrlists"]').attr("id").toString();-->
+            <!--}-->
+        <!--});-->
+    <!--}, 2000);-->
+<!--</script>-->
+
+
 <!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script type="text/javascript">
  //update data every 5 seconds
     $(function (){
         setInterval(function (){
-
             $.ajax({
                 type:"GET",
                 url: "",
                 success: function (data) {
-                    $('#content').html($(data).find('#content').html());          
+                    $('#content').html($(data).find('#content').html());
                 }
             });
-
         },2000);
     });
 </script> -->
+
 {% extends "admin/base_site.html" %}
 {% load cache controlcenter_tags %}
 
