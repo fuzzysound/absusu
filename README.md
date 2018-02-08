@@ -23,54 +23,15 @@ ABSUSU는 Django 기반이기 때문에 Django를 배포할 수 있는 어떤 �
 
 [참고한 글](https://twpower.github.io/linux/2017/04/13/41(Nginx-uWSGI-Django-%EC%97%B0%EA%B2%B0%ED%95%98%EA%B8%B0).html)
 
-#### 1. pyenv를 이용해 가상환경 설정하기
-다음과 같이 pyenv라는 이름의 폴더로 git에서 clone합니다.
-```shell
-git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-```
-`.bashrc` 파일을 열어 아래 세 줄을 추가해줍니다.
-```shell
-sudo vi .bashrc
-```
-> `.bashrc`
-> ```bash
-> export PYENV_ROOT="$HOME/.pyenv"
-> export PATH="$PYENV_ROOT/bin:$PATH"
-> eval "$(pyenv init -)"
-> ```
-```shell
-source .bashrc
-```
-이제 pyenv에 python을 설치합니다. ABSUSU는 python 3.6 이상의 버전을 지원합니다.
-```shell
-pyenv install 3.6.3
-```
-pyenv를 설치한 것과 마찬가지로 pyenv-virtualenv를 설치합니다.
-```shell
-git clone https://github.com/yyuu/pyenv-virtualenv.git ~/.pyenv/plugins/pyenv-virtualenv
-```
-`.bashrc` 파일을 열어 아래 한 줄을 추가해줍니다.
-> `.bashrc`
-> ```bash
-> eval "$(pyenv virtualenv-init -)"
-> ```
-```shell
-source .bashrc
-```
-이제 가상환경을 생성합니다. 이 예시에서는 가상환경 이름으로 'absusuenv'를 사용합니다.
-```shell
-pyenv virtualenv 3.6.3 absusuenv
-```
-가상환경은 다음과 같이 사용할 수 있습니다.
-```shell
-pyenv activate absusuenv
-```
-이제부터는 가상환경 위에서 진행하시기 바랍니다.
-다음으로 git clone으로 ABSUSU를 설치합니다.
+#### 1. 패키지 설치하기
+
+가상환경 위에서 진행하는 것을 권장합니다.
+
+git clone으로 ABSUSU를 설치합니다.
 ```shell
 git clone https://github.com/fuzzysound/absusu
 ```
-마지막으로 ABSUSU에 필요한 패키지들을 설치합니다.
+ABSUSU에 필요한 패키지들을 설치합니다.
 ```shell
 sudo apt-get install pip
 pip install -r absusu/requirement.txt
