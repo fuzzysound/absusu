@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'appserver_rest.apps.AppserverRestConfig',
     'experimenter.apps.ExperimenterConfig',
     'django_mysql',
+    'django.forms',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -84,6 +85,8 @@ TEMPLATES = [
         },
     },
 ]
+
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 WSGI_APPLICATION = 'absusu.wsgi.application'
 
