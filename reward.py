@@ -115,43 +115,38 @@ class KPI:
                     act_subject_list = [x['act_subject'] for x in self.dictfetchall(curs)]
 
                     for action in useractions:
+                        # view
                         # 해당 experiment의 view action이 이루어지면 time_dictionary에 해당 시간 입력. overwrite가능.
                         if experiment in action['action'] and 'view' in action['action']:
                             time_dictionary[action['ip']] = action['time']
 
+                        # leave
                         # same ip가 exp1_view - exp2_view - button2_click 상황에서 exp1_view와 button2_click 사이 시간이 계산되는 오류해결.
                         # 한 가지 실험에 여러 act_subject가 있다하더라도 동일한 페이지에서 활성화되므로 여러 button들이 있는 것은 괜찮음.
                         elif action['action'].split('_')[0] in act_subject_list and 'leave' in action['action']:
                             if time_dictionary.get(action['ip'], None):
                                 stay_time = action['time'] - time_dictionary.pop(action['ip'], None) # to make it memory efficient
-                                stay_time_list.append(stay_time.total_seconds())
+                                stay_time = stay_time.total_seconds()
+                                if not stay_time < 0.5: # 새로고침에 따른 오류방지. 허나 미봉책
+                                    stay_time_list.append(stay_time)
 
                             else:
-                                pass
+                                # to prevent revisitor comes first in useractions.
+                                try:
+                                    stay_time
 
-                    #return stay_time_list
+                                except NameError:
+                                    stay_time = None
+
+                                if stay_time:
+                                    # Assume that the user who revisits the page via back or backward button would spend half of previous stay time
+                                    stay_time = stay_time / 2
+                                    stay_time_list.append(stay_time)
+
+                    # return stay_time
                     avg_stay_time = reduce(lambda x, y: x + y, stay_time_list) / len(stay_time_list)
                     return round(avg_stay_time, 3)
 
         except Exception as e:
             # to make StayTimeLineChart in dashboard.py reasonable, we need 0 when useraction does not occur
             return 0
-            #return None
-
-
-'''
-# Example usage
-if __name__ =="__main__":
-    kpi = KPI()
-    result1 = kpi.CTR('exp1','test','button1')
-    result2 = kpi.CTR('exp2','test','button3')
-    result3 = kpi.CTR('exp1','test','button10')
-    result4 = kpi.CTR('exp3','test','button5')
-    result5 = kpi.CTR('exp1', 'test3', 'button1')
-    print(result1)
-    print(result2)
-    print(result3)
-    print(result4)
-    print(result5)
-    del kpi
-'''
