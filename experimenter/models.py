@@ -17,6 +17,9 @@ def get_default_now():
 def get_default_deadline():
     return timezone.now() + timezone.timedelta(days=7)
 
+def get_default_ramp_up_deadline():
+    return timezone.now() + timezone.timedelta(days=3.5)
+
 # 실험을 정의하는 모델
 class Experiment(models.Model):
 
@@ -80,13 +83,17 @@ class Experiment(models.Model):
 class Group(models.Model):
 
     BOOLEAN_CHOICES = ((True, "Yes"), (False, "No")) # widget에 나타나는 형식을 바꾸기 위한 tuple
+    RAMP_UP_CHOICES = (('no', "Don't use"), ('manual', "Manual"), ('automatic', "Automatic")) # 선택 가능한 ramp up의 종류
 
     # 필드
     name = models.CharField(max_length=100, blank=False, null=True) # 집단의 이름
     weight = models.IntegerField(default=1) # 집단에 피험자가 배정되는 비중
     control = models.BooleanField(default=False, choices=BOOLEAN_CHOICES) # 이 집단이 통제집단인가?
-    ramp_up = models.BooleanField(default=False, choices=BOOLEAN_CHOICES) # 이 집단에 ramp up을 사용할 것인가?
-    ramp_up_percent = models.FloatField(default=0.5) # ramp up을 사용할 경우 피험자를 몇 %나 배정할 것인지, must be between 0 and 100
+    ramp_up = models.CharField(max_length=100, default='no', choices=RAMP_UP_CHOICES) # 이 집단에 어떤 ramp up을 사용할 것인가?
+    ramp_up_percent = models.FloatField(default=0.5)
+    # manual ramp up을 사용할 경우 피험자를 몇 %나 배정할 것인지, must be between 0 and 100
+    ramp_up_end_time = models.DateTimeField(default=get_default_ramp_up_deadline)
+    # automatic ramp up을 사용할 경우 ramp up을 언제 종료할 것인지, 실험 시작시간과 종료시간 사이여야 함
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE) # 집단이 속한 실험
 
     # Custom manager
@@ -107,8 +114,9 @@ class Group(models.Model):
             raise ValidationError(_("Weight must be a positive integer!"), code='weight_is_non_positive')
 
         # ramp up percent가 0에서 100 사이의 값이 아닐 경우
-        if self.ramp_up_percent > 100 or self.ramp_up_percent < 0:
+        if self.ramp_up == 'manual' and (self.ramp_up_percent > 100 or self.ramp_up_percent < 0):
             raise ValidationError(_("Ramp up percent must be between 0 and 100!"), code='ramp_up_percent_is_not_valid')
+
 
     def save(self, *args, **kwargs):
         self.full_clean() # validate

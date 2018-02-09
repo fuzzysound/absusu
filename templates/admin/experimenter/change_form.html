@@ -14,6 +14,7 @@
     var control = ".form-row.field-control";
     var ramp_up = ".form-row.field-ramp_up";
     var ramp_up_percent = ".form-row.field-ramp_up_percent";
+    var ramp_up_end_time = ".form-row.field-ramp_up_end_time";
     var goals = "#goal_set-group";
 
     // hide unnecessary elements
@@ -22,12 +23,17 @@
     $(groups).find(control).hide();
     $(groups).find(ramp_up).first().hide();
 
-    // function that shows or hides ramp_up_percent depending on value of ramp_up
+    // function that shows or hides ramp_up_percent and ramp_up_end_time depending on value of ramp_up
     function showhide_ramp_up_percent(_this) {
-        if ($(_this).find(":radio:checked").val() == 'True') {
+        if ($(_this).find(":radio:checked").val() == 'manual') {
             $(_this).parents(".module.aligned").find(ramp_up_percent).show();
         } else {
             $(_this).parents(".module.aligned").find(ramp_up_percent).hide();
+        }
+        if ($(_this).find(":radio:checked").val() == 'automatic') {
+            $(_this).parents(".module.aligned").find(ramp_up_end_time).show();
+        } else {
+            $(_this).parents(".module.aligned").find(ramp_up_end_time).hide();
         }
     };
 
@@ -38,6 +44,7 @@
             $(weight).hide();
             $(groups).find(ramp_up).slice(1).hide();
             $(ramp_up_percent).hide();
+            $(ramp_up_end_time).hide();
             } else {
             $(assignment_update_interval).hide();
             $(weight).show();
@@ -56,23 +63,19 @@
     // show or hide elements upon already assigned values
     $(document).ready(function(){
         $(goals).find("tr.add-row").hide();
-        if ($(algorithm).find("#id_algorithm option:selected").val() == 'bandit') {
-            $(assignment_update_interval).show();
-            $(weight).hide();
-            $(groups).find(ramp_up).slice(1).hide();
-            $(ramp_up_percent).hide();
-            };
-        if ($(algorithm).find("div.readonly").text() == 'Multi-armed Bandit') {
-            $(assignment_update_interval).show();
-            $(weight).hide();
-            $(groups).find(ramp_up).slice(1).hide();
-            $(ramp_up_percent).hide();
-            }
         $(groups).find(control).first().find("input:checkbox")
         .attr("checked", true);
         $(ramp_up).each(function(){
                 showhide_ramp_up_percent(this)
             });
+        if ($(algorithm).find("#id_algorithm option:selected").val() == 'bandit' ||
+        $(algorithm).find("div.readonly").text() == 'Multi-armed Bandit') {
+            $(assignment_update_interval).show();
+            $(weight).hide();
+            $(groups).find(ramp_up).slice(1).hide();
+            $(ramp_up_percent).hide();
+            $(ramp_up_end_time).hide();
+            };
     });
 
 
