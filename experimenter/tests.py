@@ -1,7 +1,8 @@
 from django.test import TestCase
-from .models import Experiment, Group, Goal
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from .models import Experiment, Group, Goal
+from .forms import GroupAdminForm
 import time
 
 class ExperimentModelTests(TestCase):
@@ -68,7 +69,7 @@ class GroupModelTests(TestCase):
     # ramp up percent가 0보다 작을 경우, 코드 구조는 위와 같음
     def test_ramp_up_percent_is_less_than_zero(self):
         experiment = Experiment(name="experiment")
-        group = Group(name="group", weight=1, experiment=experiment, ramp_up=True, ramp_up_percent=-30)
+        group = Group(name="group", weight=1, experiment=experiment, ramp_up='manual', ramp_up_percent=-30)
         with self.assertRaises(ValidationError) as cm:
             group.clean()
         the_exception = cm.exception
@@ -77,11 +78,40 @@ class GroupModelTests(TestCase):
     # ramp up percent가 100보다 클 경우, 코드 구조는 위와 같음
     def test_ramp_up_percent_is_greater_than_a_hundred(self):
         experiment = Experiment(name="experiment")
-        group = Group(name="group", weight=1, experiment=experiment, ramp_up=True, ramp_up_percent=130)
+        group = Group(name="group", weight=1, experiment=experiment, ramp_up='manual', ramp_up_percent=130)
         with self.assertRaises(ValidationError) as cm:
             group.clean()
         the_exception = cm.exception
         self.assertEqual(the_exception.code, 'ramp_up_percent_is_not_valid')
+
+    # ramp up 종료시간이 실험 시작시간보다 이전일 경우
+    def test_ramp_up_end_time_before_experiment_start_time(self):
+        earlier_ramp_up_end_time = timezone.now() - timezone.timedelta(days=7) # 실험 시작시간보다 일주일 전으로 설정
+        Experiment.objects.create(name='experiment') # 실험 1개 생성
+        experiment = Experiment.objects.all() # 실험을 queryset으로 불러옴
+        group_data = {'name': 'group', 'ramp_up': 'automatic', 'ramp_up_end_time': earlier_ramp_up_end_time,
+                      'experiment': experiment} # form에 집어넣을 데이터
+        group_form = GroupAdminForm(group_data) # group form 인스턴스 생성. Validation이 form에서 일어나도록 했으므로.
+        group_form.is_valid() # cleaned_data를 생성하기 위한 호출. 그 외에 아무 일도 일어나지 않음.
+        with self.assertRaises(ValidationError) as cm:
+            group_form.clean() # validate
+        the_exception = cm.exception # 예외 추출
+        self.assertEqual(the_exception.code, 'ramp_up_end_time_not_valid')
+
+    # ramp up 종료시간이 실험 종료시간보다 이후일 경우, 코드 구조는 위와 같음
+    def test_ramp_up_end_time_after_experiment_end_time(self):
+        later_ramp_up_end_time = timezone.now() + timezone.timedelta(days=14) # 실험 종료시간보다 일주일 후로 설정
+        Experiment.objects.create(name='experiment')
+        experiment = Experiment.objects.all()
+        group_data = {'name': 'group', 'ramp_up': 'automatic', 'ramp_up_end_time': later_ramp_up_end_time,
+                      'experiment': experiment}
+        group_form = GroupAdminForm(group_data)
+        group_form.is_valid()
+        with self.assertRaises(ValidationError) as cm:
+            group_form.clean()
+        the_exception = cm.exception
+        self.assertEqual(the_exception.code, 'ramp_up_end_time_not_valid')
+
 
 
 class GoalModelTests(TestCase):

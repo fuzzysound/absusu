@@ -7,6 +7,7 @@ from experimenter.bandit import Bandit
 from .models import UserAction
 from django.utils import timezone
 from scipy.stats import beta
+import time
 
 class UserActionModelTests(APITestCase):
 
@@ -14,7 +15,7 @@ class UserActionModelTests(APITestCase):
     def test_same_ip_same_group(self):
         # 임의의 실험과 집단 생성
         Experiment.objects.create_test_experiments(2)
-        Group.objects.create_test_groups(2, ramp_up=False)
+        Group.objects.create_test_groups(2)
         # 동일한 ip로 여러 번 request 보내 response로 받은 집단이 모두 같은지 비교.
         user_groups = [] # 각각의 request에 대해 response로 받은 집단 정보가 담길 리스트.
         for i in range(25): # 25번 request를 보낸다
@@ -30,7 +31,7 @@ class UserActionModelTests(APITestCase):
     def test_diff_ip_diff_group(self):
         # 임의의 실험과 집단 생성
         Experiment.objects.create_test_experiments(2)
-        Group.objects.create_test_groups(2, ramp_up=False)
+        Group.objects.create_test_groups(2)
         #다른 ip로 여러 번 requset 보내 response로 받은 집단이 하나라도 다른지 비교.
         user_groups = []
         for i in range(25):
@@ -48,7 +49,7 @@ class UserActionModelTests(APITestCase):
     def test_weight_works(self):
         # 임의의 실험과 집단 생성
         Experiment.objects.create_test_experiments(1)
-        Group.objects.create_test_groups(10, ramp_up=False)
+        Group.objects.create_test_groups(10)
         group_assign_counts = [0]*10 # 각 그룹마다 할당된 유저의 수를 나타낼 리스트
         for i in range(10000):
             response = self.client.post('/useractions/', {'ip': str(i)}, format='json')
@@ -59,10 +60,10 @@ class UserActionModelTests(APITestCase):
         self.assertGreaterEqual(p, 0.1) # 이것이 두 분포가 같음을 보장하진 않음. 다만 최소한의 유사성을 보장하기 위한 것임.
 
 
-    # 의도한 비율대로 집단이 배정되는가 (ramp-up O)
+    # 의도한 비율대로 집단이 배정되는가 (manual ramp up)
     def test_ramp_up_works(self):
         Experiment.objects.create_test_experiments(1)
-        Group.objects.create_test_groups(10, ramp_up=True, ramp_up_percent=10) # 여기선 ramp up을 사용하는 것으로 설정
+        Group.objects.create_test_groups(10, ramp_up='manual', ramp_up_percent=10) # 여기선 maunal ramp up을 사용하는 것으로 설정
         group_assign_counts = [0]*10
         for i in range(10000):
             response = self.client.post('/useractions/', {'ip': str(i)}, format='json')
@@ -71,6 +72,24 @@ class UserActionModelTests(APITestCase):
         expected = [9100] + [100]*9 # ramp up percent가 10%이므로 실험 집단에는 1000명의 10%인 100명만 배정된다
         chi, p = chisquare(group_assign_counts, expected)
         self.assertGreaterEqual(p, 0.1)
+
+    # automatic ramp up이 제대로 작동하는가
+    def test_automatic_ramp_up_works(self):
+        Experiment.objects.create_test_experiments(1)
+        Group.objects.create_test_groups(2, ramp_up='automatic', # automatic ramp up을 사용하는 것으로 설정
+                                         ramp_up_end_time=timezone.now()+timezone.timedelta(minutes=2)) # 2분 동안 사용
+        group_assign_counts_list = np.array([[0]*2]*3) # 세 번에 걸쳐 유저 할당 수를 볼 것이므로 2*3 array를 만든다
+        for i in range(3): # 세 번에 걸쳐
+            for j in range(100): # 100명 분의 request를 보냄
+                response = self.client.post('/useractions/', {'ip': str(j)}, format='json')
+                assigned_group = response.data['groups']['0']
+                group_assign_counts_list[i][int(assigned_group)] += 1
+            if i < 2: # 마지막 횟수를 제외하고
+                time.sleep(60) # 다음 횟수 전까지 1분을 쉼
+        exp_group_assign_counts_list = list(zip(*group_assign_counts_list))[1] # 실험 집단의 유저 할당 수만 추출
+        self.assertGreaterEqual(exp_group_assign_counts_list[1], exp_group_assign_counts_list[0])
+        self.assertGreaterEqual(exp_group_assign_counts_list[2], exp_group_assign_counts_list[1])
+        # 시간이 지날수록 실험 집단의 유저 할당 수가 늘어나야 함
 
     def create_bandits_in_test(self, experiments):
         """

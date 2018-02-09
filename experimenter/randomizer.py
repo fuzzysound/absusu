@@ -1,5 +1,6 @@
 # Randomization algorithm
 
+from django.utils import timezone
 from experimenter import models
 from appserver_rest.models import UserAssignment
 import hashlib
@@ -64,16 +65,21 @@ def groupify(hash_index, experiment):
     else: # 있어서는 안 될 경우
         return ""
 
-    if experiment.algorithm == 'bandit' or assigned_group.control or not assigned_group.ramp_up:
+    if experiment.algorithm == 'bandit' or assigned_group.control or assigned_group.ramp_up=='no':
         # Bandit algorithm을 사용하거나 assign된 group이 control group이거나 ramp up을 사용하지 않는 경우
         return assigned_group.name # 그대로 assign된 group의 이름 반환
     else: # ramp up을 사용하는 경우
-        rampup_separator = left_separator + (right_separator-left_separator)*assigned_group.ramp_up_percent/100 # 새로운 기준숫자
+        if assigned_group.ramp_up=='automatic': # automatic ramp up을 사용하는 경우
+            ramp_up_percent = (timezone.now() - experiment.start_time) / (assigned_group.ramp_up_end_time - \
+                              experiment.start_time) * 100 # ramp up percent는 ramp up 사용기간 대 현재까지의 실험 진행기간의 비율
+            if ramp_up_percent > 100: # ramp up percent가 100을 초과한 경우. ramp up 종료시간이 지나면 이렇게 됨.
+                ramp_up_percent = 100 # 100으로 보정
+        else: # manual ramp up을 사용하는 경우
+            ramp_up_percent = assigned_group.ramp_up_percent # 관리자가 지정한 ramp up percent를 사용
+        rampup_separator = left_separator + (right_separator-left_separator)*ramp_up_percent/100 # 새로운 기준숫자
         if hash_index < rampup_separator: # hash index가 그 기준숫자보다 작으면
             return assigned_group.name # assign된 group의 이름 반환
         else: # 아닐 경우
             return control_group.name # control group의 이름 반환
-
-# TODO: automatic ramp-up
 
 

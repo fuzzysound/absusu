@@ -27,6 +27,7 @@ class ExperimentManager(models.Manager):
         for i in range(num):
             self.create(name=str(i), algorithm=algorithm, assignment_update_interval=assignment_update_interval)
 
+    # 생성한 실험의 bandigt 활성화. Test 시에만 사용할 것.
     def activate_test_bandits(self):
         from .models import Experiment
         for experiment in Experiment.objects.all():
@@ -36,13 +37,15 @@ class ExperimentManager(models.Manager):
 class GroupManager(models.Manager):
 
     # 지정한 개수만큼 각 실험마다 임의의 집단 생성. Test 시에만 사용하며, ExperimentManager의 create_test_experiments와 함께 사용할 것.
-    def create_test_groups(self, num, ramp_up=False, ramp_up_percent=0.5):
+    def create_test_groups(self, num, ramp_up='no', ramp_up_percent=0.5,
+                           ramp_up_end_time=timezone.now()+timezone.timedelta(days=3.5)):
         from .models import Experiment
         for experiment in Experiment.objects.all(): # 모든 존재하는 실험에 대해
             self.create(name='0', weight=1, control=True, experiment=experiment) # 통제집단 1개 생성
             for i in range(num-1):
                 self.create(name=str(i+1), weight=1, control=False, ramp_up=ramp_up,
-                            ramp_up_percent=ramp_up_percent, experiment=experiment) # num-1개의 실험집단들 생성
+                            ramp_up_percent=ramp_up_percent, ramp_up_end_time=ramp_up_end_time,
+                            experiment=experiment) # num-1개의 실험집단들 생성
 
 class GoalManager(models.Manager):
 
