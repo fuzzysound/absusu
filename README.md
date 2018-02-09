@@ -113,4 +113,16 @@ sudo service nginx restart
 uwsgi --http :8001 --module absusu.wsgi --check-static /home/ubuntu/absusu/
 ```
 ### 실험 생성하기
+실험을 생성하기 위해서는 관리자 계정을 생성해야 합니다. 관리자 계정이 없으면 `absusu` 디렉토리에서 다음을 입력합니다.
+```shell
+python manage.py createsuperuser
+```
+관리자 계정이 준비되었으면 관리자 페이지('/admin')로 이동합니다.  
+(사진)  
+Experimenter 단의 Experiment를 클릭합니다.  
+(사진 - 설명 첨부)  
+이 페이지에서는 실험을 생성하고 수정할 수 있습니다.  
+이제 오른쪽 상단의 'EXPERIMENT 추가' 버튼을 클릭합니다.  
+(사진 - 설명 첨부)  
+이 페이지에서는 실험을 세팅하고 저장합니다.  
 ### 결과 확인하기
