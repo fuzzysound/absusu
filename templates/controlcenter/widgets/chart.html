@@ -1,15 +1,20 @@
+<!--Override django controlcenter template to dynamically update dashboard Chartist.js widgets via Ajax-->
 {% load controlcenter_tags %}
 <div id="chart_{{ widget.slug }}" class="ct-chart ct-{{ widget.chartist.scale }}"></div>
 {% if widget.labels and widget.series %}
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script type="text/javascript">
+    //variable declaration for every chart widget
     var chart_{{ widget.slug }} = null;
+    /*Functions to draw every chart widgets*/
     (function(){
+        //get chart data
         var data = {
-          labels: {{ widget.labels|jsonify }},
-          series: {{ widget.series|jsonify }}
+            labels: {{ widget.labels|jsonify }},
+            series: {{ widget.series|jsonify }}
         };
 
+        //get chart options
         var options = ({{ widget.chartist.options|jsonify }} || {});
 
         {% if widget.chartist.klass == 'Line' and widget.chartist.point_lables %}
@@ -20,39 +25,43 @@
             ];
         {% endif %}
 
+        //draw chart
         chart_{{ widget.slug }} = new Chartist.{{ widget.chartist.klass }}('#chart_{{ widget.slug }}', data, options);
+
     })();
+    //if the chart is the line chart
     {% if widget.chartist.klass == 'Line' and widget.chartist.point_lables %}
+    /*Functions that update Line chart data via Ajax every interval*/
         $(function (){
             setInterval(function (){
 
                 $.ajax({
                     type:"GET",
-                    url: "{% url 'line_data' %}",
-                    data: {'exp': '{{ widget.slug }}'.slice(0,4)},
+                    url: "{% url 'line_ctr_data' %}",
+                    data: {'exp': "{{widget.slug}}".slice(0,"{{widget.slug}}".lastIndexOf("_"))},
                     dataType: "json",
                     success: function (data) {
                         chart_{{ widget.slug }}.update(data);
                     }
                 });
-
-            },3000);
+            },5000);
         });
     {% else %}
+    /*Functions that update Pie chart data via Ajax every interval*/
         $(function (){
             setInterval(function (){
 
                 $.ajax({
                     type:"GET",
                     url: "{% url 'pie_data' %}",
-                    data: {'exp': '{{ widget.slug }}'.slice(0,4)},
+                    data: {'exp': "{{widget.slug}}".slice(0,"{{widget.slug}}".lastIndexOf("_"))},
                     dataType: "json",
                     success: function (data) {
                         chart_{{ widget.slug }}.update(data);
                     }
                 });
 
-            },3000);
+            },5000);
         });
     {% endif %}
 {% endif %}

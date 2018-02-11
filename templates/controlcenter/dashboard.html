@@ -1,42 +1,20 @@
-<!--<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>-->
-<!--<script type="text/javascript">-->
-    <!--setInterval(function () {-->
-        <!--var id = '#' + $('[id*="ctrlists"]').attr("id").toString();-->
-        <!--// var bid = ' '+id+'>*';-->
-        <!--var bid = ' '+id;-->
-        <!--$(id).load( + bid);-->
-        <!--}, 2000);-->
-<!--</script>-->
-<!--<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>-->
-<!--<script type="text/javascript">-->
-    <!--setInterval(function () {-->
-        <!--$.ajax({-->
-            <!--context: this,-->
-            <!--type:"GET",-->
-            <!--url:"",-->
-            <!--success: function (){-->
-                <!--id = $('[id*="ctrlists"]').attr("id").toString();-->
-            <!--}-->
-        <!--});-->
-    <!--}, 2000);-->
-<!--</script>-->
-
-
-<!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<!--Override django controlcenter template to dynamically update dashboard ItemList widgets via Ajax-->
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script type="text/javascript">
- //update data every 5 seconds
-    $(function (){
-        setInterval(function (){
-            $.ajax({
-                type:"GET",
-                url: "",
-                success: function (data) {
-                    $('#content').html($(data).find('#content').html());
-                }
-            });
-        },2000);
-    });
-</script> -->
+    /*Update functions that via Ajax every interval*/
+    setInterval(function () {
+        $.ajax({
+            type:"GET",
+            url:"",
+            success: function (data){
+                //find div id containing "ctrlist"
+                var id = '#' + $('[id*="ctrlist"]').attr("id").toString();
+                //get data from id and update html
+                $(id).html($(data).find(id).html());
+            }
+        });
+    }, 5000);
+</script>
 
 {% extends "admin/base_site.html" %}
 {% load cache controlcenter_tags %}
