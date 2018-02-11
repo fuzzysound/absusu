@@ -44,17 +44,9 @@ class GroupPieChart(widgets.PieChart):
     This widget displays allocation of groups each experiment
     """
     title = 'User Group Allocation'
-    queryset = UserAction.objects.order_by('ip').values('ip', 'groups').distinct() \
-        .values_list('groups', flat=True)
-    queryset2 = Experiment.objects.values_list('name', 'group__name')
-    query_list = []
-    # eg)[('exp1', 'control', 2)]
-
-    for i in range(len(queryset2)):
-        val_list = list(queryset2[i])
-        val_count = eval("len(queryset.filter(groups__" + queryset2[i][0] + "=\'" + queryset2[i][1] + "\'))")
-        val_list.append(val_count)
-        query_list.append(tuple(val_list))
+    val_queryset = UserAction.objects.order_by('ip').distinct()
+    leg_queryset = Experiment.objects.filter(group__name__isnull=False)
+    experiment = None
 
     class Chartist:
         options = {
