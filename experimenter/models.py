@@ -127,7 +127,7 @@ class Goal(models.Model):
 
     SUBJECT_CHOICES = (
         ('clicks', "Clicks"),
-        ('pageviews', "Pageviews"),
+        ('time', "Time"),
     ) # widget에 나타나는 형식을 바꾸기 위한 tuple
 
     # 필드
