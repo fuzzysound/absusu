@@ -35,7 +35,7 @@ class CTRList(widgets.ItemList):
     def get_stayTime(self, queryset):
         kpi = KPI()
         today = timezone.now().date()
-        return kpi.stayTime(*queryset, today)
+        return kpi.compute_stayTime(*queryset, today)
 
 # to show a pie chart how users are allocated for each group in experiment
 class GroupPieChart(widgets.PieChart):

@@ -85,10 +85,8 @@ class KPI:
             # to make time series in dashboard.py reasonable, we need 0 when useraction does not occur
             # print(e)
 
-
-    # action을 page_leave로 바꾸었을 경우.
-    # Caculating how long user stay at the page
-    def stayTime(self, experiment, group, act_subject, date):
+    # to compute Stay Time
+    def compute_stayTime(self, experiment, group, act_subject, date):
         '''
 
         :param experiment: experiment to calculate
@@ -112,22 +110,22 @@ class KPI:
                     sql = "select act_subject from experimenter_goal g where g.id = (select id " \
                           "from experimenter_experiment e where e.name = '%s');" % (experiment)
                     curs.execute(sql)
-                    act_subject_list = [x['act_subject'] for x in self.dictfetchall(curs)]
+                    act_subject = [x['act_subject'] for x in self.dictfetchall(curs)][0]
 
                     for action in useractions:
                         # view
-                        # 해당 experiment의 view action이 이루어지면 time_dictionary에 해당 시간 입력. overwrite가능.
+                        # 해당 experiment에 대한 'view' action이 이루어지면 time_dictionary에 해당 시간 입력. overwrite가능.
                         if experiment in action['action'] and 'view' in action['action']:
                             time_dictionary[action['ip']] = action['time']
 
                         # leave
-                        # same ip가 exp1_view - exp2_view - button2_click 상황에서 exp1_view와 button2_click 사이 시간이 계산되는 오류해결.
-                        # 한 가지 실험에 여러 act_subject가 있다하더라도 동일한 페이지에서 활성화되므로 여러 button들이 있는 것은 괜찮음.
-                        elif action['action'].split('_')[0] in act_subject_list and 'leave' in action['action']:
+                        # same ip가 exp1_view - exp2_view - button2_click 상황에서 exp1_view와 button2_click 사이 시간이 계산되는 오류해결
+                        # 한 가지 실험에 여러 act_subject가 있다하더라도 동일한 페이지에서 활성화되므로 여러 button들이 있는 것은 괜찮음
+                        elif act_subject in action['action'] and 'leave' in action['action']:
                             if time_dictionary.get(action['ip'], None):
                                 stay_time = action['time'] - time_dictionary.pop(action['ip'], None) # to make it memory efficient
                                 stay_time = stay_time.total_seconds()
-                                if not stay_time < 0.5: # 새로고침에 따른 오류방지. 허나 미봉책
+                                if not stay_time < 0.5: # 새로고침에 따른 오류방지
                                     stay_time_list.append(stay_time)
 
                             else:
@@ -143,7 +141,6 @@ class KPI:
                                     stay_time = stay_time / 2
                                     stay_time_list.append(stay_time)
 
-                    # return stay_time
                     avg_stay_time = reduce(lambda x, y: x + y, stay_time_list) / len(stay_time_list)
                     return round(avg_stay_time, 3)
 
