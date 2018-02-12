@@ -1,34 +1,34 @@
-'''
+"""
 Calculate the ab test metrics
-'''
+"""
 from django.db import connection
-import os
 from functools import reduce
+import os
+
 
 class KPI:
     def __init__(self):
-        '''
+        """
         initialize
-        '''
+        """
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "absusu.settings")
 
-    def dictfetchall(self,cursor):
-        '''
+    def dictfetchall(self, cursor):
+        """
         Return all rows from a cursor as a dict"
         :param cursor: cursor
         :return: dict_cursor
-        '''
+        """
         columns = [col[0] for col in cursor.description]
         return [
             dict(zip(columns, row))
             for row in cursor.fetchall()
         ]
 
-    # to check valid experiment
-    def validExp(self, experiment):
+    def isvalid_exp(self, experiment):
         with connection.cursor() as curs:
             # check valid experiment
-            sql = 'select name from experimenter_experiment;'
+            sql = "select name from experimenter_experiment;"
             curs.execute(sql)
             rows = self.dictfetchall(curs)
             experiment_list = [row['name'] for row in rows]
@@ -38,21 +38,22 @@ class KPI:
                 return None
             return True
 
-    # to caculate Click-Through Rate
-    def CTR(self, experiment, group, act_subject, date):
-        '''
+    # to compute Click-Through Rate
+    def compute_ctr(self, experiment, group, act_subject, date):
+        """
         :param experiment: experiment to calculate
         :param group: group to calculate under the experiment
         :param act_subject: click-through rate target
-        :param date: specify date to calculate CTR
+        :param date: specify date to calculate compute_ctr
         :return: click-through rate to the third decimal point of the corresponding parameters
-        '''
+        """
+
         try:
-            if self.validExp(experiment):
+            if self.isvalid_exp(experiment):
                 with connection.cursor() as curs:
                     # check valid act_subject
-                    sql = "select g.act_subject from experimenter_goal g, experimenter_experiment e \
-                                    where g.experiment_id=e.id and e.name= '%s';" % (experiment)
+                    sql = "select g.act_subject from experimenter_goal g, experimenter_experiment e where g.experiment_id=e.id and e.name= '%s';" \
+                          % (experiment)
                     curs.execute(sql)
                     rows = self.dictfetchall(curs)
                     act_subject_list = [row['act_subject'] for row in rows]
@@ -61,16 +62,16 @@ class KPI:
                         print("Invalid act_subject")
                         return None
 
-                    # Caculating CTR
-                    sql = "select * from appserver_rest_useraction where json_extract(groups,'$.%s')='%s' and time < '%s' + INTERVAL 1 DAY;"\
+                    # compute_ctr
+                    sql = "select * from appserver_rest_useraction where json_extract(groups,'$.\"%s\"')='%s' and time < '%s' + INTERVAL 1 DAY;" \
                           % (experiment, group, date)
                     curs.execute(sql)
                     rows = self.dictfetchall(curs)
 
-                    # initialize CTR variables
+                    # initialize compute_ctr variables
                     impressions = 0
                     clicks = 0
-                    # count CTR variables for each rows
+                    # count compute_ctr variables for each rows
                     for row in rows:
                         if experiment in row['action'] and 'view' in row['action']:
                             impressions += 1
@@ -78,17 +79,16 @@ class KPI:
                             clicks += 1
                     ctr = clicks / impressions
 
-                    return round(ctr, 3)
+                    return ctr
 
         except Exception as e:
+            # print(str(e) + " in compute_ctr")
             return 0
-            # to make time series in dashboard.py reasonable, we need 0 when useraction does not occur
-            # print(e)
+            # to make time series i n dashboard.py reasonable, we need 0 when useraction does not occur
 
     # to compute Stay Time
     def compute_stayTime(self, experiment, group, act_subject, date):
         '''
-
         :param experiment: experiment to calculate
         :param group: group to calculate under the experiment
         :param act_subject: click-through rate target which is actually not used here, but queryset efficient
@@ -96,21 +96,22 @@ class KPI:
         :return: 'stay time' which describes how long user stays at the page in seconds
         '''
         try:
-            if self.validExp(experiment):
+            if self.isvalid_exp(experiment):
                 with connection.cursor() as curs:
                     # get useractions per experiment and group
-                    sql = "select * from appserver_rest_useraction where json_extract(groups,'$.%s')='%s' and time < '%s' + INTERVAL 1 DAY;" \
+                    sql = "select * from appserver_rest_useraction where json_extract(groups,'$.\"%s\"')='%s' and time < '%s' + INTERVAL 1 DAY;" \
                           % (experiment, group, date)
                     curs.execute(sql)
                     useractions = self.dictfetchall(curs)
                     time_dictionary = dict()
                     stay_time_list = list()
 
-                    # get act_subject of the experiment what we chose
-                    sql = "select act_subject from experimenter_goal g where g.id = (select id " \
-                          "from experimenter_experiment e where e.name = '%s');" % (experiment)
-                    curs.execute(sql)
-                    act_subject = [x['act_subject'] for x in self.dictfetchall(curs)][0]
+                    # return experiment, group, act_subject, date
+                    # # get act_subject of the experiment what we chose
+                    # sql = "select act_subject from experimenter_goal g where g.id = (select id " \
+                    #       "from experimenter_experiment e where e.name = '%s');" % (experiment)
+                    # curs.execute(sql)
+                    # act_subject = [x['act_subject'] for x in self.dictfetchall(curs)][0]
 
                     for action in useractions:
                         # view
@@ -121,6 +122,7 @@ class KPI:
                         # leave
                         # same ip가 exp1_view - exp2_view - button2_click 상황에서 exp1_view와 button2_click 사이 시간이 계산되는 오류해결
                         # 한 가지 실험에 여러 act_subject가 있다하더라도 동일한 페이지에서 활성화되므로 여러 button들이 있는 것은 괜찮음
+                        # 추후 수정
                         elif act_subject in action['action'] and 'leave' in action['action']:
                             if time_dictionary.get(action['ip'], None):
                                 stay_time = action['time'] - time_dictionary.pop(action['ip'], None) # to make it memory efficient
@@ -140,7 +142,7 @@ class KPI:
                                     # Assume that the user who revisits the page via back or backward button would spend half of previous stay time
                                     stay_time = stay_time / 2
                                     stay_time_list.append(stay_time)
-
+                    # return time_dictionary
                     avg_stay_time = reduce(lambda x, y: x + y, stay_time_list) / len(stay_time_list)
                     return round(avg_stay_time, 3)
 
