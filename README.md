@@ -5,10 +5,11 @@ ABSUSU는 Python Django 기반의 A/B testing framework입니다.
 ABSUSU는 [Django Rest Framework](http://www.django-rest-framework.org/)를 이용하여 당신이 실험하고자 하는 웹 어플리케이션과 통신할 수 있습니다. 유저의 행동 정보를 ABSUSU에게 HTTP request로 보내면 ABSUSU가 유저를 어느 집단에 할당할지를 HTTP response로 보낼 것입니다. 이 response의 정보를 이용해 유저들에게 서로 다른 UX를 제공할 수 있습니다.
 
 ### UI를 이용한 간단한 실험 생성
-ABSUSU는 Django 관리자 페이지를 이용하는 실험 생성 UI를 제공합니다. 코드를 짤 필요 없이 클릭 몇 번만으로 실험 설정을 바꾸고 실험을 생성할 수 있습니다.
+ABSUSU는 Django 관리자 페이지를 이용하는 실험 생성 UI를 제공합니다. 이곳에서 실험을 설정하고 생성할 수 있습니다.
+
 
 ### 대시보드를 통해 실험 결과 제공
-ABSUSU는 [Django-controlcenter](https://github.com/byashimov/django-controlcenter)를 이용하여 실험 결과를 대시보드로 제공합니다. 각 실험의 집단별 유저 할당 수와 KPI 수치가 파이 차트와 라인 차트로 제시됩니다. 이러한 시각화 자료들은 실험이 진행되는 도중에도 볼 수 있으며 실시간으로 업데이트됩니다. 
+ABSUSU는 [Django-controlcenter](https://github.com/byashimov/django-controlcenter)를 이용하여 실험 결과를 대시보드로 제공합니다. 각 실험의 집단별 유저 할당 수와 KPI 수치등을 차트로 보여줍니다. 대시보드는 실험 진행 중에 Ajax를 통해 실시간으로 업데이트됩니다. 
 ## User Guide
 ### 필요한 패키지
 - python 3.6 이상
