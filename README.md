@@ -137,11 +137,11 @@ Experimenter 단의 Experiments를 클릭합니다.
 ![ex_screenshot](./images/new_experiment1.png)
 
 다음으로 통제집단과 실험집단의 개수, 비율을 정합니다.
-실험집단에 한해서 [Ramp up](https://en.wikipedia.org/wiki/Ramp_up) 사용여부를 결정합니다.
+실험집단에 한해서 [Ramp up](https://en.wikipedia.org/wiki/Ramp_up)의 사용여부를 결정합니다.
 
 ![ex_screenshot](./images/new_experiment2.png)
 마지막으로 실험의 목표를 설정합니다. 
-실험대상인 act_subject와 결과지표인 track을 설정합니다.
+실험대상인 act_subject와 결과지표인 track을 설정 후 저장합니다.
 
 ![ex_screenshot](./images/new_experiment3.png)
 
