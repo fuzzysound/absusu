@@ -132,7 +132,7 @@ Experimenter 단의 Experiments를 클릭합니다.
 
 
 이 페이지에서는 실험을 설정하고 저장합니다.
-실험의 이름, 시작시각, 종료시각, [Multi-Armed Bandit](https://en.wikipedia.org/wiki/Multi-armed_bandit)의 사용여부를 결정합니다.
+실험이름, 시작시각, 종료시각, [Multi-Armed Bandit](https://en.wikipedia.org/wiki/Multi-armed_bandit)의 사용여부를 결정합니다.
 
 ![ex_screenshot](./images/new_experiment1.png)
 
