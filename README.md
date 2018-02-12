@@ -126,7 +126,7 @@ Experimenter 단의 Experiments를 클릭합니다.
 ![ex_screenshot](./images/experimenter.png)
 
 이 페이지에서는 실험을 생성하고 수정할 수 있습니다.
-새로운 실험을 생성하기 위해 오른쪽 상단의 'EXPERIMENT 추가' 버튼을 클릭합니다.
+새로운 실험을 생성하기 위해 오른쪽 상단의 __EXPERIMENT 추가__ 버튼을 클릭합니다.
 
 ![ex_screenshot](./images/experiments.png)
 
