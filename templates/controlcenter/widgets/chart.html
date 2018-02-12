@@ -37,7 +37,7 @@
 
                 $.ajax({
                     type:"GET",
-                    url: ("{{ widget.slug }}" === $('[id*="staytimelinecharts"]').attr("id").toString()) ? "{% url 'line_time_data' %}":"{% url 'line_ctr_data' %}",
+                    url: ("{{ widget.slug }}".match("staytimelinecharts")) ? "{% url 'line_time_data' %}":"{% url 'line_ctr_data' %}",
                     data: {'exp': "{{widget.slug}}".slice(0,"{{widget.slug}}".lastIndexOf("_"))},
                     dataType: "json",
                     success: function (data) {

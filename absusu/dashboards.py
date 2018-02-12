@@ -38,6 +38,7 @@ class CTRList(widgets.ItemList):
     # show and sort column name
     sortable = True
 
+
 # to show a list of compute_stayTime for each experiment
 class StayTimeList(widgets.ItemList):
     """
@@ -64,6 +65,7 @@ class StayTimeList(widgets.ItemList):
 
     # show and sort column name
     sortable = True
+
 
 class GroupPieChart(widgets.PieChart):
     """
@@ -109,6 +111,7 @@ class GroupPieChart(widgets.PieChart):
     def legend(self):
         # Displays labels in legend
         return [group_name for exp_name, group_name in self.leg_queryset.values_list('name', 'group__name')]
+
 
 class CTRLineChart(widgets.LineChart):
     """
@@ -216,6 +219,7 @@ class CTRLineChart(widgets.LineChart):
      '2018-01-18': [0.444, 0.538, 0.9, 0.6]}
         }
     '''
+
 
 class StayTimeLineChart(CTRLineChart):
     title = "Stay Time"
