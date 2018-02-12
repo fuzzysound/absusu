@@ -38,6 +38,32 @@ class CTRList(widgets.ItemList):
     # show and sort column name
     sortable = True
 
+# to show a list of compute_stayTime for each experiment
+class StayTimeList(widgets.ItemList):
+    """
+    This widget displays a list of CTRs
+    """
+    title = "Stay Time"
+    model = Experiment
+
+    # multiple tables inner join queryset
+    queryset = model.objects.filter(goal__track='Time').annotate(groups=F('group__name'))\
+        .annotate(act_subject=F('goal__act_subject')).values_list('name', 'groups', 'act_subject')
+
+    # what to show in widget
+    list_display = ('name', 'groups', 'act_subject', 'get_stayTime')
+
+    # get computed stayTime value as seconds
+    def get_stayTime(self, queryset):
+        kpi = KPI()
+        today = timezone.now().date()
+        return kpi.compute_stayTime(*queryset, today)
+
+    # short description of func
+    get_stayTime.short_description = 'Stay Time'
+
+    # show and sort column name
+    sortable = True
 
 class GroupPieChart(widgets.PieChart):
     """
@@ -83,7 +109,6 @@ class GroupPieChart(widgets.PieChart):
     def legend(self):
         # Displays labels in legend
         return [group_name for exp_name, group_name in self.leg_queryset.values_list('name', 'group__name')]
-
 
 class CTRLineChart(widgets.LineChart):
     """
@@ -175,8 +200,7 @@ class CTRLineChart(widgets.LineChart):
         values = dict()
         for label in self.labels:
             alist = list()
-            for exp_name, group_name, act_subject in self.val_queryset.values_list('name', 'group__name',
-                                                                                   'goal__act_subject'):
+            for exp_name, group_name, act_subject in self.val_queryset.values_list('name', 'group__name', 'goal__act_subject'):
                 alist.append("%.2f" % (kpi.compute_ctr(exp_name, group_name, act_subject, label)))
             values[label] = alist
         return values
@@ -193,6 +217,19 @@ class CTRLineChart(widgets.LineChart):
         }
     '''
 
+class StayTimeLineChart(CTRLineChart):
+    title = "Stay Time"
+
+    # to calculate values such as stay time. ex) 18.28
+    def values(self):
+        kpi = KPI()
+        values = dict()
+        for label in self.labels:
+            alist = list()
+            for exp_name, group_name, act_subject in self.val_queryset.values_list('name', 'group__name', 'goal__act_subject'):
+                alist.append(kpi.compute_stayTime(exp_name, group_name, act_subject, label))
+            values[label] = alist
+        return values
 
 # Metaclass arguments are: class name, base, properties.
 GroupPieCharts = [WidgetMeta('{}_GroupPieCharts'.format(name),
@@ -213,11 +250,21 @@ CTRLineCharts = [WidgetMeta('{}_CTRLineCharts'.format(name),
                              'changelist_url': (Experiment, {'Experiment__name__exact': name})})
                  for name in [experiment.name for experiment in Experiment.objects.filter(goal__track='clicks')]]
 
+StayTimeLineCharts = [WidgetMeta('{}_StayTimeLineCharts'.format(name),
+                       (StayTimeLineChart,),
+                       {'leg_queryset': (StayTimeLineChart.leg_queryset.filter(name=name)),
+                        'val_queryset': (StayTimeLineChart.val_queryset.filter(name=name)),
+                        'elapsed_time': (StayTimeLineChart.elapsed_time(name)),
+                        'title': name + ' Stay Time',
+                        'changelist_url': (Experiment, {'Experiment__name__exact': name})})
+                      for name in [experiment.name for experiment in Experiment.objects.filter(goal__track='time')]]
 
 # Specifying which widgets to use
 class AbsusuDashboard(Dashboard):
     widgets = (
         widgets.Group([CTRList], width=widgets.LARGE),
         widgets.Group(GroupPieCharts, width=widgets.LARGE),
+        widgets.Group([StayTimeList], width=widgets.LARGE),
         widgets.Group(CTRLineCharts, width=widgets.FULL),
+        widgets.Group(StayTimeLineCharts, width=widgets.FULL),
     )
