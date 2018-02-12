@@ -7,5 +7,5 @@ __pycache__
 !**/migrations/__init__.py
 /static
 .DS_Store
-.ipynb
-./tests.py
+**/.ipynb
+**/tests.py
