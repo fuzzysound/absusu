@@ -17,6 +17,7 @@ ABSUSU는 [Django-controlcenter](https://github.com/byashimov/django-controlcent
 - django rest framework 3.7.3
 - pymysql 0.7.11
 - numpy
+- scipy
 - django-controlcenter 0.2.5
 ### 설치
 ABSUSU는 Django 기반이기 때문에 Django를 배포할 수 있는 어떤 어플리케이션도 지원합니다. 여기에서는 Nginx와 uWSGI를 이용한 배포를 예시로 들 것입니다. 아래 예시는 Ubuntu 16.04 환경에서 진행한 것으로 다른 OS를 사용할 경우 작동하지 않을 수 있습니다.
