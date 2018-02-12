@@ -250,7 +250,7 @@ CTRLineCharts = [WidgetMeta('{}_CTRLineCharts'.format(name),
                              'changelist_url': (Experiment, {'Experiment__name__exact': name})})
                  for name in [experiment.name for experiment in Experiment.objects.filter(goal__track='clicks')]]
 
-StayTimeLineCharts = [WidgetMeta('{}StayTimeLineCharts'.format(name),
+StayTimeLineCharts = [WidgetMeta('{}_StayTimeLineCharts'.format(name),
                        (StayTimeLineChart,),
                        {'leg_queryset': (StayTimeLineChart.leg_queryset.filter(name=name)),
                         'val_queryset': (StayTimeLineChart.val_queryset.filter(name=name)),

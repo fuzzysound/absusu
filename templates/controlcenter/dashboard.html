@@ -7,10 +7,12 @@
             type:"GET",
             url:"",
             success: function (data){
-                //find div id containing "ctrlist"
+                //find div id containing "ctrlist" and "staytimelist"
                 var id = '#' + $('[id*="ctrlist"]').attr("id").toString();
+                var sid = '#' + $('[id*="staytimelist"]').attr("id").toString();
                 //get data from id and update html
                 $(id).html($(data).find(id).html());
+                $(sid).html($(data).find(sid).html());
             }
         });
     }, 5000);
