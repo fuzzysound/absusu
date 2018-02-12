@@ -118,25 +118,31 @@ uwsgi --http :8001 --module absusu.wsgi --check-static /home/ubuntu/absusu/
 python manage.py createsuperuser
 ```
 관리자 계정이 준비되었으면 관리자 페이지('/admin')로 이동합니다. 앞서 생성한 계정을 통해 로그인합니다.
+
 ![ex_screenshot](./images/admin.png)
 
 Experimenter 단의 Experiments를 클릭합니다.
+
 ![ex_screenshot](./images/experimenter.png)
 
 이 페이지에서는 실험을 생성하고 수정할 수 있습니다. 새로운 실험을 생성하기 위해 오른쪽 상단의 'EXPERIMENT 추가' 버튼을 클릭합니다.
-![ex_screenshot](./images/experiments.png){: width="100%" height="100%"}
+
+![ex_screenshot](./images/experiments.png)
 
 
 이 페이지에서는 실험을 세팅하고 저장합니다.
 실험의 이름, 시작시각, 종료시각, Multi-Armed Bandit 사용여부를 결정합니다.
-![ex_screenshot](./images/new_experiment1.png){: width="100%" height="100%"}
+
+![ex_screenshot](./images/new_experiment1.png)
 
 통제집단과 실험집단의 이름 그리고 비율을 정합니다.
 집단간 비율이 각각 1, 1이면 A/B test 참가자 중 50%는 통제집단에, 나머지 50%는 실험집단에 무선배정됩니다.
 Ramp up 사용여부를 결정합니다.
-![ex_screenshot](./images/new_experiment2.png){: width="100%" height="100%"}
+
+![ex_screenshot](./images/new_experiment2.png)
 
 실험의 목표를 설정합니다. Goal의 이름은 실험대상인 act_subject와 결과지표인 KPI를 결합한 이름을 사용하기를 권장합니다.
-![ex_screenshot](./images/new_experiment3.png){: width="100%" height="100%"}
+
+![ex_screenshot](./images/new_experiment3.png)
 
 ### 결과 확인하기
