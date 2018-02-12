@@ -141,7 +141,7 @@ Experimenter 단의 Experiments를 클릭합니다.
 
 ![ex_screenshot](./images/new_experiment2.png)
 마지막으로 실험의 목표를 설정합니다. 
-실험대상인 act_subject와 결과지표인 track을 설정 후 저장합니다.
+실험대상인 Act subject와 결과지표인 Track을 설정 후 저장합니다.
 
 ![ex_screenshot](./images/new_experiment3.png)
 
