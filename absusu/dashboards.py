@@ -142,6 +142,10 @@ class CTRLineChart(widgets.LineChart):
                 'right': 50,
                 'bottom': 50,
             },
+            # minimum
+            'low': 0,
+            # maximum
+            'high': 1,
         }
 
     # to specify experiment period
@@ -224,6 +228,31 @@ class CTRLineChart(widgets.LineChart):
 class StayTimeLineChart(CTRLineChart):
     title = "Stay Time"
 
+    class Chartist:
+        # visual tuning
+        options = {
+            'axisX': {
+                'labelOffset': {
+                    'x': -50,
+                    'y': 10
+                },
+
+            },
+            # lineSmooth with interpolation
+            'lineSmooth': 'Chartist.Interpolation.simple({divisor: 2})',
+            'fullWidth': True,
+            'chartPadding': {
+                'top': 70,
+                'left': 30,
+                'right': 50,
+                'bottom': 50,
+            },
+            # minimum
+            'low': 'undefined',
+            # maximum
+            'high': 'undefined',
+        }
+
     # to calculate values such as stay time. ex) 18.28
     def values(self):
         kpi = KPI()
@@ -234,6 +263,7 @@ class StayTimeLineChart(CTRLineChart):
                 alist.append(kpi.compute_stayTime(exp_name, group_name, act_subject, label))
             values[label] = alist
         return values
+
 
 # Metaclass arguments are: class name, base, properties.
 GroupPieCharts = [WidgetMeta('{}_GroupPieCharts'.format(name),
