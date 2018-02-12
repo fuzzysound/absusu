@@ -129,14 +129,14 @@ Experimenter 단의 Experiments를 클릭합니다.
 
 이 페이지에서는 실험을 세팅하고 저장합니다.
 실험의 이름, 시작시각, 종료시각, Multi-Armed Bandit 사용여부를 결정합니다.
-![ex_screenshot](./images/new_experiments1.png){: width="100%" height="100%"}
+![ex_screenshot](./images/new_experiment1.png){: width="100%" height="100%"}
 
 통제집단과 실험집단의 이름 그리고 비율을 정합니다.
 집단간 비율이 각각 1, 1이면 A/B test 참가자 중 50%는 통제집단에, 나머지 50%는 실험집단에 무선배정됩니다.
 Ramp up 사용여부를 결정합니다.
-![ex_screenshot](./images/new_experiments2.png){: width="100%" height="100%"}
+![ex_screenshot](./images/new_experiment2.png){: width="100%" height="100%"}
 
 실험의 목표를 설정합니다. Goal의 이름은 실험대상인 act_subject와 결과지표인 KPI를 결합한 이름을 사용하기를 권장합니다.
-![ex_screenshot](./images/new_experiments3.png){: width="100%" height="100%"}
+![ex_screenshot](./images/new_experiment3.png){: width="100%" height="100%"}
 
 ### 결과 확인하기
