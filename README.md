@@ -119,12 +119,68 @@ uwsgi --http :8001 --module absusu.wsgi --check-static /home/ubuntu/absusu/
 ```shell
 python manage.py createsuperuser
 ```
-관리자 계정이 준비되었으면 관리자 페이지('/admin')로 이동합니다.  
-(사진)  
-Experimenter 단의 Experiment를 클릭합니다.  
-(사진 - 설명 첨부)  
-이 페이지에서는 실험을 생성하고 수정할 수 있습니다.  
-이제 오른쪽 상단의 'EXPERIMENT 추가' 버튼을 클릭합니다.  
-(사진 - 설명 첨부)  
-이 페이지에서는 실험을 세팅하고 저장합니다.  
+관리자 계정이 준비되었으면 관리자 페이지('/admin')로 이동합니다. 앞서 생성한 계정을 통해 로그인합니다.
+
+![ex_screenshot](./images/admin.png)
+
+Experimenter 단의 Experiments를 클릭합니다.
+
+![ex_screenshot](./images/experimenter.png)
+
+이 페이지에서는 실험을 생성하고 수정할 수 있습니다.
+새로운 실험을 생성하기 위해 오른쪽 상단의 __EXPERIMENT 추가__ 버튼을 클릭합니다.
+
+![ex_screenshot](./images/experiments.png)
+
+
+이 페이지에서는 실험을 설정하고 저장합니다.
+실험이름, 시작시각, 종료시각, [Multi-Armed Bandit](https://en.wikipedia.org/wiki/Multi-armed_bandit)의 사용여부를 결정합니다.
+
+![ex_screenshot](./images/new_experiment1.png)
+
+다음으로 통제집단과 실험집단의 개수, 비율을 정합니다.
+실험집단에 한해서 [Ramp up](https://en.wikipedia.org/wiki/Ramp_up)의 사용여부를 결정합니다.
+
+![ex_screenshot](./images/new_experiment2.png)
+
+마지막으로 실험의 목표를 설정합니다.
+실험대상인 Act subject와 결과지표인 KPI를 설정 후 저장합니다.
+예를 들어, 'button1'에 대한 클릭률을 측정하고 싶은 경우 KPI는 Click-Through Rate로, act_subject는 button1으로, name은 button1_ctr 이라고 설정할 수 있습니다.
+또한, 'page1'에 대한 평균체류시간을 측정하고 싶은 경우 KPI는 Time on Page로, act_subject는 page1으로, name은 page1_time이라고 설정할 수 있습니다.
+
+![ex_screenshot](./images/new_experiment3.png)
+
+### 어플리케이션 상의 추가작업
+
+absusu A/B test platform을 통해 KPI를 계산하기 위해서는 어플리케이션이 올바른 요청을 보내야 합니다.
+그리고 KPI에 따라 어플리케이션 웹페이지 상의 추가작업이 필요합니다.
+
+1) Click-Through Rate
+관리자가 특정 button, 예를 들어 button1에 대한 CTR에 대한 실험을 exp_button1이라고 생성했다고 가정하겠습니다.
+사용자가 button이 포함된 페이지에 접속 시 {'ip': ip, 'action': 'exp_button1_view'} 요청을 post방식으로 보내주어야 합니다.
+또한, 그 button을 클릭했을 때 {'ip': ip, 'action': 'button1_click'} 요청을 post방식으로 보내주어야 합니다.
+
+
+2) Time on Page
+관리자가 특정 page, 예를 들어 page1에 대한 Time on Page에 대한 실험을 exp_page1이라고 생성했다고 가정하겠습니다.
+사용자가 page에 접속 시 {'ip': ip, 'action': 'exp_page1_view'} 요청을 post방식으로 보내주어야 합니다.
+또한, 사용자가 페이지를 떠나면 {'ip': ip, 'action': 'button1_click'} 요청을 post방식으로 보내주어야 합니다.
+
+웹페이지 html파일에 아래와 같은 script를 심어서 사용자가 페이지를 떠나는 행동을 잡아낼 수 있습니다.
+
+```shell
+# firefox
+<script>
+$(window).on('unload', function() {
+    $.ajax('/page_leave/', {});
+});
+</script>
+
+# chrome
+<script>
+window.onbeforeunload = function() {
+  $.ajax('/page_leave/', {});
+  }
+'''
+
 ### 결과 확인하기
