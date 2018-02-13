@@ -63,7 +63,7 @@ class KPI:
                         return None
 
                     # compute_ctr
-                    sql = "select * from appserver_rest_useraction where json_extract(groups,'$.%s')='%s' and time < '%s' + INTERVAL 1 DAY;" \
+                    sql = "select * from appserver_rest_useraction where json_extract(groups,'$.\"%s\"')='%s' and time < '%s' + INTERVAL 1 DAY;" \
                           % (experiment, group, date)
                     curs.execute(sql)
                     rows = self.dictfetchall(curs)
@@ -99,7 +99,7 @@ class KPI:
             if self.isvalid_exp(experiment):
                 with connection.cursor() as curs:
                     # get useractions per experiment and group
-                    sql = "select * from appserver_rest_useraction where json_extract(groups,'$.%s')='%s' and time < '%s' + INTERVAL 1 DAY;" \
+                    sql = "select * from appserver_rest_useraction where json_extract(groups,'$.\"%s\"')='%s' and time < '%s' + INTERVAL 1 DAY;" \
                           % (experiment, group, date)
                     curs.execute(sql)
                     useractions = self.dictfetchall(curs)
@@ -144,7 +144,7 @@ class KPI:
                                     stay_time_list.append(stay_time)
                     # return time_dictionary
                     avg_stay_time = reduce(lambda x, y: x + y, stay_time_list) / len(stay_time_list)
-                    return round(avg_stay_time, 3)
+                    return round(avg_stay_time, 2)
 
         except Exception as e:
             # to make StayTimeLineChart in dashboard.py reasonable, we need 0 when useraction does not occur

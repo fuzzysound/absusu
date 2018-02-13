@@ -4,6 +4,9 @@ from django.utils import timezone
 from .models import Experiment, Group, Goal
 from .forms import GroupAdminForm
 import time
+from reward import KPI
+import random
+
 
 class ExperimentModelTests(TestCase):
     # 메소드 이름 앞에 'test_'가 붙어야 test된다는 사실 참고
@@ -113,7 +116,6 @@ class GroupModelTests(TestCase):
         self.assertEqual(the_exception.code, 'ramp_up_end_time_not_valid')
 
 
-
 class GoalModelTests(TestCase):
 
     def test_str_is_equal_to_name(self):
@@ -152,3 +154,50 @@ class GoalModelTests(TestCase):
         with self.assertRaises(Exception) as raised:
             goal2 = Goal.objects.create(name="exp2_ctr", act_subject="button1", experiment=experiment2)
         self.assertEqual(utils.IntegrityError, type(raised.exception))
+
+
+class KPITests(TestCase):
+
+    # Group 간 클릭하는 비율이 다른 경우 'compute_ctr'이 이를 잘 비교하는지 검증
+    def test_ctr_calcuation(self):
+
+        Experiment.objects.create_test_experiments(1)
+        Group.objects.create_test_groups(2)
+        Goal.objects.create_test_goals()
+
+        for ip in range(50):
+            response = self.client.post('/useractions/', {'ip': str(ip), 'action': '0_view'}, format='json')
+
+            if response.data['groups']['0'] == '0':
+                if random.random() < 0.9:
+                    self.client.post('/useractions/', {'ip': str(ip), 'action': '0_click'}, format='json')
+            else:
+                if random.random() < 0.3:
+                    self.client.post('/useractions/', {'ip': str(ip), 'action': '0_click'}, format='json')
+
+        kpi = KPI()
+        ctr_0 = kpi.compute_ctr('0', '0', '0', timezone.now().date())
+        ctr_1 = kpi.compute_ctr('0', '1', '0', timezone.now().date())
+        self.assertGreater(ctr_0, ctr_1)
+
+    # Group 간 페이지에 머무는 체류시간이 다른 경우 'compute_staytime'이 이를 잘 비교하는지 검증
+    def test_staytime_calcuation(self):
+
+        Experiment.objects.create_test_experiments(1)
+        Group.objects.create_test_groups(2)
+        Goal.objects.create_test_goals()
+
+        for ip in range(50):
+            response = self.client.post('/useractions/', {'ip': str(ip), 'action': '0_view'}, format='json')
+
+            if response.data['groups']['0'] == '0':
+                time.sleep(random.uniform(1.0, 3.0))
+                self.client.post('/useractions/', {'ip': str(ip), 'action': '0_leave'}, format='json')
+            else:
+                time.sleep(random.uniform(0.1, 1.0))
+                self.client.post('/useractions/', {'ip': str(ip), 'action': '0_leave'}, format='json')
+
+        kpi = KPI()
+        staytime_0 = kpi.compute_stayTime('0', '0', '0', timezone.now().date())
+        staytime_1 = kpi.compute_stayTime('0', '1', '0', timezone.now().date())
+        self.assertGreater(staytime_0, staytime_1)
