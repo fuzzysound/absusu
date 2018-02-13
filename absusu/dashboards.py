@@ -16,11 +16,11 @@ class CTRList(widgets.ItemList):
     """
     This widget displays a list of CTRs
     """
-    title = "Click-through Rate"
+    title = "Click-Through Rate"
     model = Experiment
 
     # multiple tables inner join queryset
-    queryset = model.objects.filter(goal__track='Clicks').annotate(groups=F('group__name'))\
+    queryset = model.objects.filter(goal__KPI='clicks').annotate(groups=F('group__name'))\
         .annotate(act_subject=F('goal__act_subject')).values_list('name', 'groups', 'act_subject')
 
     # what to show in widget
@@ -33,7 +33,7 @@ class CTRList(widgets.ItemList):
         return "%.2f%%" % (kpi.compute_ctr(*queryset, today) * 100.0)
 
     # short description of func
-    get_ctr.short_description = 'CTR'
+    get_ctr.short_description = 'Click-Through Rate'
 
     # show and sort column name
     sortable = True
@@ -44,11 +44,11 @@ class StayTimeList(widgets.ItemList):
     """
     This widget displays a list of CTRs
     """
-    title = "Stay Time"
+    title = "Avg. Time on Page"
     model = Experiment
 
     # multiple tables inner join queryset
-    queryset = model.objects.filter(goal__track='Time').annotate(groups=F('group__name'))\
+    queryset = model.objects.filter(goal__KPI='time').annotate(groups=F('group__name'))\
         .annotate(act_subject=F('goal__act_subject')).values_list('name', 'groups', 'act_subject')
 
     # what to show in widget
@@ -61,7 +61,7 @@ class StayTimeList(widgets.ItemList):
         return "{}".format(kpi.compute_stayTime(*queryset, today))
 
     # short description of func
-    get_stayTime.short_description = 'Stay Time(sec)'
+    get_stayTime.short_description = 'Time on Page (sec)'
 
     # show and sort column name
     sortable = True
@@ -226,7 +226,7 @@ class CTRLineChart(widgets.LineChart):
 
 
 class StayTimeLineChart(CTRLineChart):
-    title = "Stay Time"
+    title = "Avg. Time on Page"
 
     class Chartist:
         # visual tuning
@@ -282,16 +282,16 @@ CTRLineCharts = [WidgetMeta('{}_CTRLineCharts'.format(name),
                              'elapsed_time': (CTRLineChart.elapsed_time(name)),
                              'title': name + ' CTR TimeSeries',
                              'changelist_url': (Experiment, {'Experiment__name__exact': name})})
-                 for name in [experiment.name for experiment in Experiment.objects.filter(goal__track='clicks')]]
+                 for name in [experiment.name for experiment in Experiment.objects.filter(goal__KPI='clicks')]]
 
 StayTimeLineCharts = [WidgetMeta('{}_StayTimeLineCharts'.format(name),
                        (StayTimeLineChart,),
                        {'leg_queryset': (StayTimeLineChart.leg_queryset.filter(name=name)),
                         'val_queryset': (StayTimeLineChart.val_queryset.filter(name=name)),
                         'elapsed_time': (StayTimeLineChart.elapsed_time(name)),
-                        'title': name + ' Stay Time',
+                        'title': name + ' Avg. Time on Page',
                         'changelist_url': (Experiment, {'Experiment__name__exact': name})})
-                      for name in [experiment.name for experiment in Experiment.objects.filter(goal__track='time')]]
+                      for name in [experiment.name for experiment in Experiment.objects.filter(goal__KPI='time')]]
 
 # Specifying which widgets to use
 class AbsusuDashboard(Dashboard):

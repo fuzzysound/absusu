@@ -126,13 +126,13 @@ class Group(models.Model):
 class Goal(models.Model):
 
     SUBJECT_CHOICES = (
-        ('clicks', "Clicks"),
-        ('time', "Time"),
+        ('clicks', "Click-Through Rate"),
+        ('time', "Time on Page"),
     ) # widget에 나타나는 형식을 바꾸기 위한 tuple
 
     # 필드
     name = models.CharField(max_length=100, blank=False, null=True, unique=True)
-    track = models.CharField(max_length=10, choices = SUBJECT_CHOICES, default='clicks')
+    KPI = models.CharField(max_length=10, choices = SUBJECT_CHOICES, default='clicks')
     act_subject = models.CharField(max_length=100, blank=False, null=True)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
 
@@ -140,7 +140,7 @@ class Goal(models.Model):
     objects = GoalManager()
 
     class Meta:
-        unique_together = (('track','act_subject'),) # track과 act_subject를 묶어서 유일하게
+        unique_together = (('KPI', 'act_subject'),) # KPI와 act_subject를 묶어서 유일하게
 
     # 출력 형식
     def __str__(self):
