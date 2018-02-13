@@ -58,10 +58,10 @@ class StayTimeList(widgets.ItemList):
     def get_stayTime(self, queryset):
         kpi = KPI()
         today = timezone.now().date()
-        return kpi.compute_stayTime(*queryset, today)
+        return "{}".format(kpi.compute_stayTime(*queryset, today))
 
     # short description of func
-    get_stayTime.short_description = 'Stay Time'
+    get_stayTime.short_description = 'Stay Time(sec)'
 
     # show and sort column name
     sortable = True

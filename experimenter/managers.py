@@ -49,10 +49,9 @@ class GroupManager(models.Manager):
 
 class GoalManager(models.Manager):
 
-    # 지정한 개수만큼 각 실험마다 임의의 목표 생성. Test 시에만 사용하며, ExperimentManager의 create_test_experiments와 함께 사용할 것.
-    def create_test_goals(self, num):
+    # 각 실험마다 임의의 goal 생성. Test 시에만 사용하며, ExperimentManager의 create_test_experiments와 함께 사용할 것.
+    def create_test_goals(self):
         from .models import Experiment
-        for experiment in Experiment.objects.all(): # 모든 존재하는 실험에 대해
-            for i in range(num):
-                goal_name = experiment.name + '-' + str(i) # 목표 이름과 act subject 이름은 실험 이름과 임의의 숫자 합성
-                self.create(name=goal_name, act_subject=goal_name, experiment=experiment) # num개의 목표 생성
+        # 모든 실험은 단 한개의 act_subject만 갖는다.
+        for experiment in Experiment.objects.all():
+            self.create(name='0', act_subject='0', experiment=experiment)
