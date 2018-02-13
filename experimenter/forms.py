@@ -1,3 +1,9 @@
+""" A/B Test Platform Project with SKTelecom and SKBroadband
+
+Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul National University
+
+File: absusu/experimenter/forms.py
+"""
 ### html form을 정의하는 파일
 from django import forms
 from django.core.exceptions import ValidationError

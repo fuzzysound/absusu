@@ -1,3 +1,9 @@
+""" A/B Test Platform Project with SKTelecom and SKBroadband
+
+Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul National University
+
+File: absusu/absusu/views.py
+"""
 from appserver_rest.models import UserAction
 from experimenter.models import Experiment
 from reward import KPI

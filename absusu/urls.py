@@ -1,3 +1,9 @@
+""" A/B Test Platform Project with SKTelecom and SKBroadband
+
+Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul National University
+
+File: absusu/absusu/urls.py
+"""
 from django.conf.urls import url, include
 from django.contrib import admin
 from controlcenter.views import controlcenter

@@ -1,3 +1,9 @@
+""" A/B Test Platform Project with SKTelecom and SKBroadband
+
+Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul National University
+
+File: absusu/experimenter/models.py
+"""
 ### testing server 자체적으로 생성하는 데이터를 정의하는 모델들
 from django.db import models
 from django.core.exceptions import ValidationError

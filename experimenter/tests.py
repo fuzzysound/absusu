@@ -1,3 +1,9 @@
+""" A/B Test Platform Project with SKTelecom and SKBroadband
+
+Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul National University
+
+File: absusu/experimenter/tests.py
+"""
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.utils import timezone
@@ -161,9 +167,9 @@ class KPITests(TestCase):
     # Group 간 클릭하는 비율이 다른 경우 'compute_ctr'이 이를 잘 비교하는지 검증
     def test_ctr_calcuation(self):
 
-        Experiment.objects.create_test_experiments(1)
-        Group.objects.create_test_groups(2)
-        Goal.objects.create_test_goals()
+        Experiment.objects.create_test_experiments(1) # experiment 1개 생성
+        Group.objects.create_test_groups(2) # group 2개 생성
+        Goal.objects.create_test_goals() # goal 1개 생성
 
         for ip in range(50):
             response = self.client.post('/useractions/', {'ip': str(ip), 'action': '0_view'}, format='json')
@@ -183,9 +189,9 @@ class KPITests(TestCase):
     # Group 간 페이지에 머무는 체류시간이 다른 경우 'compute_staytime'이 이를 잘 비교하는지 검증
     def test_staytime_calcuation(self):
 
-        Experiment.objects.create_test_experiments(1)
-        Group.objects.create_test_groups(2)
-        Goal.objects.create_test_goals()
+        Experiment.objects.create_test_experiments(1) # experiment 1개 생성
+        Group.objects.create_test_groups(2) # group 2개 생성
+        Goal.objects.create_test_goals() # goal 1개 생성
 
         for ip in range(50):
             response = self.client.post('/useractions/', {'ip': str(ip), 'action': '0_view'}, format='json')

@@ -1,3 +1,9 @@
+""" A/B Test Platform Project with SKTelecom and SKBroadband
+
+Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul National University
+
+File: absusu/absusu/dashboard.py
+"""
 """
 Show AB test Dashboard
 """
@@ -67,6 +73,7 @@ class StayTimeList(widgets.ItemList):
     sortable = True
 
 
+# to show a pie chart of user assignment for each experiment
 class GroupPieChart(widgets.PieChart):
     """
     This widget displays allocation of groups each experiment
@@ -113,6 +120,7 @@ class GroupPieChart(widgets.PieChart):
         return [group_name for exp_name, group_name in self.leg_queryset.values_list('name', 'group__name')]
 
 
+# to show a line chart of click-through rate for each experiment
 class CTRLineChart(widgets.LineChart):
     """
     This widget displays flow of CTRs during each experiment
@@ -225,6 +233,7 @@ class CTRLineChart(widgets.LineChart):
     '''
 
 
+# to show a line chart of stay time for each experiment
 class StayTimeLineChart(CTRLineChart):
     title = "Avg. Time on Page"
 

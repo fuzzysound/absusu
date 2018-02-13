@@ -1,3 +1,9 @@
+""" A/B Test Platform Project with SKTelecom and SKBroadband
+
+Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul National University
+
+File: absusu/experimenter/managers.py
+"""
 ### Model managers for custom querysets
 
 from django.db import models
@@ -54,4 +60,5 @@ class GoalManager(models.Manager):
         from .models import Experiment
         # 모든 실험은 단 한개의 act_subject만 갖는다.
         for experiment in Experiment.objects.all():
-            self.create(name='0', act_subject='0', experiment=experiment)
+            # 실험이름: '0', 실험대상이름: '0'
+            self.create(name='0', act_subject='0', experiment_id=experiment.id)

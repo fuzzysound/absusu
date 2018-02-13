@@ -1,3 +1,9 @@
+""" A/B Test Platform Project with SKTelecom and SKBroadband
+
+Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul National University
+
+File: absusu/appserver_rest/views.py
+"""
 ### 페이지에 데이터를 어떻게 나타낼지 정의하는 파일
 from rest_framework import viewsets
 from rest_framework.renderers import AdminRenderer, JSONRenderer
