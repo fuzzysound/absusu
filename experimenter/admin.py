@@ -1,3 +1,9 @@
+""" A/B Test Platform Project with SKTelecom and SKBroadband
+
+Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul National University
+
+File: absusu/experimenter/admin.py
+"""
 ### 관리자 페이지를 정의하는 파일
 from django.contrib import admin
 from django.utils import timezone

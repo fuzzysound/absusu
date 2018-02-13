@@ -1,9 +1,16 @@
+""" A/B Test Platform Project with SKTelecom and SKBroadband
+
+Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul National University
+
+File: absusu/appserver_rest/managers.py
+"""
 ### Model managers for custom querysets
 
 from django.db import models
 from django.db.models import Q
 
-class UserActionQuerySet(models.QuerySet): # UserActionManager를 위한 custom queryset
+# UserActionManager를 위한 custom queryset
+class UserActionQuerySet(models.QuerySet):
 
     # 주어진 실험과 집단에서 해당 action에 해당하는 로그 찾기
     def query_action(self, experiment, group, action, time_after=None):
@@ -27,7 +34,8 @@ class UserActionQuerySet(models.QuerySet): # UserActionManager를 위한 custom 
 
 class UserActionManager(models.Manager):
 
-    def get_queryset(self): # Custom queryset 불러오기
+    # Custom queryset 불러오기
+    def get_queryset(self):
         return UserActionQuerySet(self.model, using=self._db)
 
     def query_action(self, experiment, group, action, time_after=None):

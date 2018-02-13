@@ -1,3 +1,9 @@
+""" A/B Test Platform Project with SKTelecom and SKBroadband
+
+Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul National University
+
+File: absusu/appserver_rest/urls.py
+"""
 ### url과 view를 연결해주는 파일
 from django.conf.urls import url, include
 from .views import *

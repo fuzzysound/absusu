@@ -1,3 +1,9 @@
+""" A/B Test Platform Project with SKTelecom and SKBroadband
+
+Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul National University
+
+File: absusu/appserver_rest/serializers.py
+"""
 ### http 프로토콜 데이터를 파이썬 데이터로 변환해주는 파일
 from rest_framework import serializers
 from .models import UserAction, UserAssignment

@@ -1,3 +1,9 @@
+""" A/B Test Platform Project with SKTelecom and SKBroadband
+
+Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul National University
+
+File: absusu/appserver_rest/tests.py
+"""
 from rest_framework.test import APITestCase
 from experimenter.models import Experiment, Group, Goal
 from scipy.stats import chisquare

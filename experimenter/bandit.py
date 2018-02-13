@@ -1,3 +1,9 @@
+""" A/B Test Platform Project with SKTelecom and SKBroadband
+
+Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul National University
+
+File: absusu/experimenter/bandit.py
+"""
 ### Bandit algorithm이 동작하도록 하는 모듈
 from django.utils import timezone
 from appserver_rest.models import UserAction
