@@ -8,6 +8,7 @@ __pycache__
 /static
 .DS_Store
 .ipynb
+.ipynb_checkpoints
 .iml
 .xml
 .idea/
