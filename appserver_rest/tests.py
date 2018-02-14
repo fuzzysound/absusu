@@ -177,7 +177,7 @@ class UserActionModelTests(APITestCase):
     def test_bandit_algorithm_works(self):
         Experiment.objects.create_test_experiments(1, algorithm='bandit') # Bandit algorithm 사용하는 실험 생성
         Group.objects.create_test_groups(5) # 집단 5개 생성
-        Goal.objects.create_test_goals(1) # 목표 1개 생성
+        Goal.objects.create_test_goals() # 목표 생성
         experiment = Experiment.objects.get() # Experiment 인스턴스 지정
         self.create_bandits_in_test([experiment]) # bandit 생성
         for i in range(5): # 총 5번 weight를 업데이트함
@@ -197,7 +197,7 @@ class UserActionModelTests(APITestCase):
     def test_bandit_algorithm_works_with_multiple_experiment(self):
         Experiment.objects.create_test_experiments(3, algorithm='bandit')
         Group.objects.create_test_groups(5)
-        Goal.objects.create_test_goals(1)
+        Goal.objects.create_test_goals()
         experiments = Experiment.objects.all()
         self.create_bandits_in_test(experiments)
         winners = ['1', '3', '4'] # 각 실험별로 상정하는 최선의 집단

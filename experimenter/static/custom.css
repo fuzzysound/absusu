@@ -1,0 +1,79 @@
+/* 관리자 페이지 커스텀 스타일 정의 */
+@import url('https://fonts.googleapis.com/css?family=Comfortaa');
+
+#header {
+    color: #000000;
+    background: #ffd402;
+    overflow: visible;
+    height: 60px;
+    padding: 0 40px;
+    line-height: 60px;
+}
+
+#branding h1 a:visited {
+    color: #000000;
+}
+
+#header a:link, #header a:visited {
+    color: #000000;
+}
+
+#branding h1, #branding h1 a:link, #branding h1 a:visited {
+    font-family: 'Comfortaa';
+    font-weight: 900;
+}
+
+#user-tools a {
+    border-bottom: 1px solid rgba(0, 0, 0, 1);
+    }
+
+.module h2, .module caption, .inline-group h2 {
+    background: #ffdd35;
+}
+
+a.section:link, a.section:visited {
+    color: #777777;
+}
+
+a:link, a:visited {
+    color: #222222
+}
+
+div.breadcrumbs {
+    background: #ffe668;
+    color: #777777;
+    z-index: 1;
+}
+
+div.breadcrumbs a {
+    color: #777777;
+}
+
+.button, input[type="submit"], input[type="button"], .submit-row input, a.button {
+    background: #848d73;
+}
+
+.button.default, input[type="submit"].default, .submit-row input.default {
+    background: #363636;
+}
+
+.module h2, .module caption, .inline- {
+    color: #777777;
+}
+
+.login #header h1 a {
+    color: #000000;
+}
+
+.dashboard #content {
+    z-index: 1;
+}
+
+#content {
+    position: relative;
+    z-index: 1;
+}
+
+ul li {
+    padding: 0;
+}

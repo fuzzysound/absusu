@@ -9,6 +9,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from django.utils.html import format_html
 from .managers import ExperimentManager, GroupManager, GoalManager
 from .bandit import Bandit
 from threading import Timer
@@ -50,11 +51,19 @@ class Experiment(models.Model):
     def __str__(self):
         return self.name # 실험의 이름을 출력
 
-    # 현재 진행되고 있는 실험인가를 관리자 페이지에 나타내기 위한 method
+    # 현재 진행되고 있는 실험인가를 알기 위한 method
     def active_now(self):
         return self.start_time < timezone.now() < self.end_time # 현재시각이 실험의 시작시간과 종료시간 사이인가
-    active_now.short_description = "Active" # 관리자 페이지에 표시될 열 이름
-    active_now.boolean = True # 아이콘으로 표시
+
+    # 실험이 어떤 상태인지 관리자 페이지에 표시하기 위한 method
+    def status(self):
+        if timezone.now() < self.start_time: # 실험 시작 이전일 경우
+            return format_html('<span style="color:#ceab00">Waiting</span>') # 노란색의 'Waiting' 문구 표시
+        elif timezone.now() < self.end_time: # 실험이 진행되 중일 경우
+            return format_html('<span style="color:#8ace00; font-weight:bold">Working</span>') # 초록색의 굵은 'Working'
+        else: # 실험이 종료되었을 경우
+            return format_html('<span style="color:#8d8873">Finished</span>') # 회색의 'Finished'
+    status.short_description = 'Status' # 화면에 표시할 이름
 
     # Bandit algorithm을 활성화하는 method. 관리자 페이지에서 모델 저장할 때 호출됨.
     def activate_bandit(self):

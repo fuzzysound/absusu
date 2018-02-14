@@ -1,0 +1,28 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static 'custom.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'dropdown.css' %}" />
+{% endblock %}
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">absusu</a></h1>
+{% endblock %}
+
+{% block nav-global %}
+    <div id="dropdown-list">
+        <ul class="dropdown-menu">
+            {% for menu in dropdown_menus %}
+                <li>
+                    <a {% if menu.url %}href="{{ menu.url }}"{% endif %}>{{ menu.name }}</a>
+                    <ul>
+                        {% for sub_menu in menu.sub_menus %}
+                            <li><a href="{{ sub_menu.url }}">{{ sub_menu.name }}</a> </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

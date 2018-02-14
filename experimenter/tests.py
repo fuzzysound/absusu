@@ -38,6 +38,23 @@ class ExperimentModelTests(TestCase):
         time.sleep(0.00000011) # 만약을 위해 아주 약간 pause
         self.assertIs(experiment.active_now(), False)
 
+    # 실제로 실험이 시작되기 전일 때 status() 값이 'Waiting'인가
+    def test_status_waiting(self):
+        later_start_time = timezone.now() + timezone.timedelta(days=3) # 시작시간을 현재시간보다 늦게 설정
+        experiment = Experiment(name='experiment', start_time=later_start_time)
+        self.assertIn('Waiting', experiment.status())
+
+    # 실제로 실험이 진행 중일 때 status() 값이 'Working'인가
+    def test_status_working(self):
+        experiment = Experiment(name='experiment')
+        self.assertIn('Working', experiment.status())
+
+    # 실제로 실험이 종료되었을 때 status() 값이 'Finished'인가. 위 test_active_now_false()와 같은 방법을 사용함.
+    def test_status_finished(self):
+        experiment = Experiment(name='experiment', end_time=timezone.now()+timezone.timedelta(seconds=0.0000001))
+        time.sleep(0.00000011)
+        self.assertIn('Finished', experiment.status())
+
     # assignment update interval이 0일 경우
     def test_assignment_update_interval_is_zero(self):
         experiment = Experiment(name="experiment", algorithm='bandit', assignment_update_interval=0)
@@ -172,18 +189,18 @@ class KPITests(TestCase):
         Goal.objects.create_test_goals() # goal 1개 생성
 
         for ip in range(50):
-            response = self.client.post('/useractions/', {'ip': str(ip), 'action': '0_view'}, format='json')
+            response = self.client.post('/useractions/', {'ip': str(ip), 'action': '0-0_view'}, format='json')
 
             if response.data['groups']['0'] == '0':
                 if random.random() < 0.9:
-                    self.client.post('/useractions/', {'ip': str(ip), 'action': '0_click'}, format='json')
+                    self.client.post('/useractions/', {'ip': str(ip), 'action': '0-0_click'}, format='json')
             else:
                 if random.random() < 0.3:
-                    self.client.post('/useractions/', {'ip': str(ip), 'action': '0_click'}, format='json')
+                    self.client.post('/useractions/', {'ip': str(ip), 'action': '0-0_click'}, format='json')
 
         kpi = KPI()
-        ctr_0 = kpi.compute_ctr('0', '0', '0', timezone.now().date())
-        ctr_1 = kpi.compute_ctr('0', '1', '0', timezone.now().date())
+        ctr_0 = kpi.compute_ctr('0', '0', '0-0', timezone.now().date())
+        ctr_1 = kpi.compute_ctr('0', '1', '0-0', timezone.now().date())
         self.assertGreater(ctr_0, ctr_1)
 
     # Group 간 페이지에 머무는 체류시간이 다른 경우 'compute_staytime'이 이를 잘 비교하는지 검증
@@ -194,16 +211,16 @@ class KPITests(TestCase):
         Goal.objects.create_test_goals() # goal 1개 생성
 
         for ip in range(50):
-            response = self.client.post('/useractions/', {'ip': str(ip), 'action': '0_view'}, format='json')
+            response = self.client.post('/useractions/', {'ip': str(ip), 'action': '0-0_view'}, format='json')
 
             if response.data['groups']['0'] == '0':
                 time.sleep(random.uniform(1.0, 3.0))
-                self.client.post('/useractions/', {'ip': str(ip), 'action': '0_leave'}, format='json')
+                self.client.post('/useractions/', {'ip': str(ip), 'action': '0-0_leave'}, format='json')
             else:
                 time.sleep(random.uniform(0.1, 1.0))
-                self.client.post('/useractions/', {'ip': str(ip), 'action': '0_leave'}, format='json')
+                self.client.post('/useractions/', {'ip': str(ip), 'action': '0-0_leave'}, format='json')
 
         kpi = KPI()
-        staytime_0 = kpi.compute_stayTime('0', '0', '0', timezone.now().date())
-        staytime_1 = kpi.compute_stayTime('0', '1', '0', timezone.now().date())
+        staytime_0 = kpi.compute_stayTime('0', '0', '0-0', timezone.now().date())
+        staytime_1 = kpi.compute_stayTime('0', '1', '0-0', timezone.now().date())
         self.assertGreater(staytime_0, staytime_1)
