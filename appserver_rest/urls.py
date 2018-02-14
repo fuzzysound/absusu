@@ -6,8 +6,8 @@ File: absusu/appserver_rest/urls.py
 """
 ### url과 view를 연결해주는 파일
 from django.conf.urls import url, include
-from .views import *
 from rest_framework.routers import DefaultRouter
+from .views import *
 
 router = DefaultRouter() # 일반적인 방식으로 url을 자동으로 지정해주는 router
 router.register(r'useractions', UserActionViewSet)

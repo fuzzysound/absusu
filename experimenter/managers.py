@@ -61,4 +61,4 @@ class GoalManager(models.Manager):
         # 모든 실험은 단 한개의 act_subject만 갖는다.
         for experiment in Experiment.objects.all():
             # 실험이름: '0', 실험대상이름: '0'
-            self.create(name='0', act_subject='0', experiment_id=experiment.id)
+            self.create(name=experiment.name+'-0', act_subject=experiment.name+'-0', experiment_id=experiment.id)
