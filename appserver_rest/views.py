@@ -20,6 +20,7 @@ class UserActionViewSet(viewsets.ModelViewSet): # UserAction 모델의 viewset
     serializer_class = UserActionSerializer
     renderer_classes = (AdminRenderer, JSONRenderer, ) # 두 개의 renderer를 제공한다
 
+
 class UserAssignmentViewSet(viewsets.ModelViewSet): # UserAssignment 모델의 viewset
     queryset = UserAssignment.objects.all()
     serializer_class = UserAssignmentSerializer

@@ -4,13 +4,16 @@ Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul Nation
 
 File: absusu/experimenter/managers.py
 """
-### Model managers for custom querysets
+"""
+Model managers for custom querysets
+"""
 
 from django.db import models
 from django.utils import timezone
 
 # Why making explicit querysets? To make chainable filter methods.
 # Reference: https://simpleisbetterthancomplex.com/tips/2016/08/16/django-tip-11-custom-manager-with-chainable-querysets.html
+
 
 class ExperimentQuerySet(models.QuerySet): # ExperimentManager를 위한 custom queryset
 
@@ -52,6 +55,7 @@ class GroupManager(models.Manager):
                 self.create(name=str(i+1), weight=1, control=False, ramp_up=ramp_up,
                             ramp_up_percent=ramp_up_percent, ramp_up_end_time=ramp_up_end_time,
                             experiment=experiment) # num-1개의 실험집단들 생성
+
 
 class GoalManager(models.Manager):
 

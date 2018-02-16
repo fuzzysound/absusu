@@ -4,12 +4,15 @@ Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul Nation
 
 File: absusu/experimenter/bandit.py
 """
-### Bandit algorithm이 동작하도록 하는 모듈
+"""
+Bandit algorithm 이 동작하도록 하는 모듈
+"""
 from django.utils import timezone
 from appserver_rest.models import UserAction
 from threading import Timer
 from scipy.stats import beta
 import numpy as np
+
 
 class Bandit:
     def __init__(self, experiment):

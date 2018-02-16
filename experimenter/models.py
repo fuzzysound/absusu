@@ -98,6 +98,7 @@ class Experiment(models.Model):
         self.full_clean() # validate
         super(Experiment, self).save(*args, **kwargs)
 
+
 # 실험의 집단을 정의하는 모델, 실험에 종속적.
 class Group(models.Model):
 
