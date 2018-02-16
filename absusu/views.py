@@ -4,6 +4,9 @@ Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul Nation
 
 File: absusu/absusu/views.py
 """
+"""
+HTTP communication for dashboard chartist data
+"""
 from appserver_rest.models import UserAction
 from experimenter.models import Experiment
 from reward import KPI

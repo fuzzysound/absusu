@@ -40,7 +40,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django_extensions',
     'controlcenter',
     'rest_framework',
     'appserver_rest.apps.AppserverRestConfig',

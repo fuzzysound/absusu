@@ -4,7 +4,9 @@ Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul Nation
 
 File: absusu/appserver_rest/urls.py
 """
-### url과 view를 연결해주는 파일
+"""
+url과 view를 연결해주는 파일
+"""
 from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
 from .views import *

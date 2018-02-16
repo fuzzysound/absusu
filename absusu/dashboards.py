@@ -141,8 +141,7 @@ class CTRLineChart(widgets.LineChart):
                 },
 
             },
-            # lineSmooth with interpolation
-            'lineSmooth': 'Chartist.Interpolation.simple({divisor: 2})',
+            'lineSmooth': False,
             'fullWidth': True,
             'chartPadding': {
                 'top': 70,
@@ -301,6 +300,7 @@ StayTimeLineCharts = [WidgetMeta('{}_StayTimeLineCharts'.format(name),
                         'title': name + ' Avg. Time on Page',
                         'changelist_url': (Experiment, {'Experiment__name__exact': name})})
                       for name in [experiment.name for experiment in Experiment.objects.filter(goal__KPI='time')]]
+
 
 # Specifying which widgets to use
 class AbsusuDashboard(Dashboard):

@@ -4,10 +4,13 @@ Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul Nation
 
 File: absusu/appserver_rest/serializers.py
 """
-### http 프로토콜 데이터를 파이썬 데이터로 변환해주는 파일
+"""
+http 프로토콜 데이터를 파이썬 데이터로 변환해주는 파일
+"""
 from rest_framework import serializers
 from .models import UserAction, UserAssignment
 from experimenter.randomizer import get_user_groups
+
 
 class UserActionSerializer(serializers.ModelSerializer): # UserAction 모델의 serializer
 
@@ -26,6 +29,7 @@ class UserActionSerializer(serializers.ModelSerializer): # UserAction 모델의 
         """
         validated_data['groups'] = get_user_groups(validated_data['ip'])
         return super().create(validated_data)
+
 
 class UserAssignmentSerializer(serializers.ModelSerializer): # UserAssignment 모델의 serializer
 

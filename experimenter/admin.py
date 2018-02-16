@@ -4,7 +4,9 @@ Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul Nation
 
 File: absusu/experimenter/admin.py
 """
-### 관리자 페이지를 정의하는 파일
+"""
+관리자 페이지를 정의하는 파일
+"""
 from django.contrib import admin
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -12,6 +14,7 @@ from django.contrib.auth.models import Group as AdminGroup
 from .models import Experiment, Group, Goal
 from .forms import *
 from django.utils.translation import gettext_lazy as _
+
 
 # Status 필터를 적용하기 위한 클래스
 class StatusListFilter(admin.SimpleListFilter):
@@ -49,6 +52,7 @@ class StatusListFilter(admin.SimpleListFilter):
         else:
             return queryset.filter(end_time__lte=timezone.now())
 
+
 class GroupInline(admin.StackedInline): # Group 모델을 inline으로 나타내기 위한 클래스
     model = Group
     form = GroupAdminForm
@@ -64,6 +68,7 @@ class GroupInline(admin.StackedInline): # Group 모델을 inline으로 나타내
         else:
             return []
 
+
 class GoalInline(admin.TabularInline): # Goal 모델을 inline으로 나타내기 위한 클래스
     model = Goal
     extra = 0
@@ -76,6 +81,7 @@ class GoalInline(admin.TabularInline): # Goal 모델을 inline으로 나타내�
             return ['name', 'KPI', 'act_subject']
         else:
             return []
+
 
 class ExperimentAdmin(admin.ModelAdmin): # Experiment 모델을 admin이 수정할 수 있도록 하는 클래스
     form = ExperimentAdminForm
@@ -105,6 +111,7 @@ class ExperimentAdmin(admin.ModelAdmin): # Experiment 모델을 admin이 수정�
 class AbsusuAdminSite(admin.AdminSite):
     site_header = 'absusu' # 관리자 페이지 상단에 표시할 이름
     site_title = 'absusu' # 탭에 표시할 이름
+
 
 absusu_admin = AbsusuAdminSite() # 관리자 페이지 인스턴스 생성
 absusu_admin.register(Experiment, ExperimentAdmin) # Experiment 모델을 관리자 페이지에 등록

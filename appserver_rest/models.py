@@ -4,12 +4,14 @@ Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul Nation
 
 File: absusu/appserver_rest/models.py
 """
-### Application server와 통신하는 데이터를 정의하는 모델들
-
+"""
+Application server와 통신하는 데이터를 정의하는 모델들
+"""
 from django.db import models
 from django_mysql.models import JSONField
 from django.urls import reverse
 from .managers import UserActionManager
+
 
 # 유저 행동을 기록하는 모델, application server에 응답함.
 class UserAction(models.Model):

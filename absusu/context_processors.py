@@ -4,7 +4,11 @@ Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul Nation
 
 File: absusu/absusu/context_processors.py
 """
-### 관리자 페이지 드롭다운 메뉴의 항목을 제공하는 모듈
+"""
+관리자 페이지 드롭다운 메뉴의 항목을 제공하는 모듈
+"""
+
+
 def dropdown_menus(request):
     menus = [
         {'name': 'Experiment',

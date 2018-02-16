@@ -9,6 +9,7 @@ File: absusu/appserver_rest/managers.py
 from django.db import models
 from django.db.models import Q
 
+
 # UserActionManager를 위한 custom queryset
 class UserActionQuerySet(models.QuerySet):
 
