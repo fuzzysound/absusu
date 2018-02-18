@@ -85,7 +85,8 @@ class GoalInline(admin.TabularInline): # Goal 모델을 inline으로 나타내�
 
 class ExperimentAdmin(admin.ModelAdmin): # Experiment 모델을 admin이 수정할 수 있도록 하는 클래스
     form = ExperimentAdminForm
-    fields = ['name', 'start_time', 'end_time', 'algorithm', 'assignment_update_interval'] # 화면에 나타낼 필드들
+    fields = ['name', 'start_time', 'end_time', 'algorithm', 'assignment_update_interval',
+              'auto_termination',] # 화면에 나타낼 필드들
     inlines = [GroupInline, GoalInline] # inline으로 나타낼 모델들
     list_display = ('name', 'start_time', 'end_time', 'status') # 목록 화면에서 나타낼 필드들
     list_display_links = ('name', ) # name 필드를 클릭하면 detail view로 이동하도록

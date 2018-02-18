@@ -32,9 +32,10 @@ class ExperimentManager(models.Manager):
         return self.get_queryset().active()
 
     # 지정한 개수만큼 임의의 실험 생성. Test 시에만 사용할 것.
-    def create_test_experiments(self, num, algorithm='simple', assignment_update_interval=24):
+    def create_test_experiments(self, num, algorithm='simple', assignment_update_interval=24, auto_termination=False):
         for i in range(num):
-            self.create(name=str(i), algorithm=algorithm, assignment_update_interval=assignment_update_interval)
+            self.create(name=str(i), algorithm=algorithm, assignment_update_interval=assignment_update_interval,
+                        auto_termination=auto_termination)
 
     # 생성한 실험의 bandigt 활성화. Test 시에만 사용할 것.
     def activate_test_bandits(self):
@@ -60,9 +61,10 @@ class GroupManager(models.Manager):
 class GoalManager(models.Manager):
 
     # 각 실험마다 임의의 goal 생성. Test 시에만 사용하며, ExperimentManager의 create_test_experiments와 함께 사용할 것.
-    def create_test_goals(self):
+    def create_test_goals(self, KPI='clicks'):
         from .models import Experiment
         # 모든 실험은 단 한개의 act_subject만 갖는다.
         for experiment in Experiment.objects.all():
             # 실험이름: '0', 실험대상이름: '0'
-            self.create(name=experiment.name+'-0', act_subject=experiment.name+'-0', experiment_id=experiment.id)
+            self.create(name=experiment.name+'-0', KPI=KPI,
+                        act_subject=experiment.name+'-0', experiment_id=experiment.id)
