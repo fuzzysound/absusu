@@ -1,8 +1,0 @@
-Django==1.11.6
-django-controlcenter==0.2.5
-django-mysql==2.2.0
-djangorestframework==3.7.3
-numpy==1.14.0
-PyMySQL==0.7.11
-scipy==1.0.0
-
