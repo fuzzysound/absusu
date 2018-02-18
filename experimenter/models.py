@@ -39,6 +39,7 @@ class Experiment(models.Model):
     end_time = models.DateTimeField(default=get_default_deadline) # 실험 종료시간
     algorithm = models.CharField(max_length=100, choices=ALGORITHM_CHOICES, default='simple') # 사용할 테스트 알고리즘
     assignment_update_interval = models.FloatField(default=24) # must be positive
+    auto_termination = models.BooleanField(default=False) # 자동 실험 종료 사용 여부
 
     # Custom manager
     objects = ExperimentManager()
@@ -71,7 +72,7 @@ class Experiment(models.Model):
         if self.start_time <= timezone.now(): # 만약 실험 시작시간이 지금보다 이르면
             self.bandit.update_weights() # 바로 활성화
         else: # 그 외에는
-            Timer((self.start_time - timezone.now()).seconds, self.bandit.update_weights).start()
+            Timer((self.start_time - timezone.now()).total_seconds(), self.bandit.update_weights).start()
             # 실험 시작시간에 활성화하도록 타이머 생성
 
 

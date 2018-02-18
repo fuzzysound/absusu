@@ -28,6 +28,7 @@ class ExperimentAdminForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'assignment_update_interval': TextWithHoursWidget,
+            'auto_termination': forms.CheckboxInput, # 체크박스
         }
 
 class GroupAdminForm(forms.ModelForm):

@@ -9,6 +9,7 @@
     var $ = django.jQuery;
     var algorithm = ".form-row.field-algorithm";
     var assignment_update_interval = ".form-row.field-assignment_update_interval";
+    var auto_termination = ".form-row.field-auto_termination";
     var groups = "#group_set-group";
     var weight = ".form-row.field-weight";
     var control = ".form-row.field-control";
@@ -19,6 +20,7 @@
 
     // hide unnecessary elements
     $(assignment_update_interval).hide();
+    $(auto_termination).hide();
     $(ramp_up_percent).hide();
     $(groups).find(control).hide();
     $(groups).find(ramp_up).first().hide();
@@ -41,12 +43,14 @@
     $(algorithm).change(function() {
         if ($(algorithm).find("#id_algorithm option:selected").val() == 'bandit') {
             $(assignment_update_interval).show();
+            $(auto_termination).show();
             $(weight).hide();
             $(groups).find(ramp_up).slice(1).hide();
             $(ramp_up_percent).hide();
             $(ramp_up_end_time).hide();
             } else {
             $(assignment_update_interval).hide();
+            $(auto_termination).hide();
             $(weight).show();
             $(groups).find(ramp_up).slice(1).show();
             $(ramp_up).each(function(){
@@ -71,6 +75,7 @@
         if ($(algorithm).find("#id_algorithm option:selected").val() == 'bandit' ||
         $(algorithm).find("div.readonly").text() == 'Multi-armed Bandit') {
             $(assignment_update_interval).show();
+            $(auto_termination).show();
             $(weight).hide();
             $(groups).find(ramp_up).slice(1).hide();
             $(ramp_up_percent).hide();

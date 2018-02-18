@@ -42,7 +42,6 @@ a:link, a:visited {
 div.breadcrumbs {
     background: #ffe668;
     color: #777777;
-    z-index: 1;
 }
 
 div.breadcrumbs a {
@@ -63,15 +62,6 @@ div.breadcrumbs a {
 
 .login #header h1 a {
     color: #000000;
-}
-
-.dashboard #content {
-    z-index: 1;
-}
-
-#content {
-    position: relative;
-    z-index: 1;
 }
 
 ul li {
