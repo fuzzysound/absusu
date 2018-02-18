@@ -158,11 +158,20 @@ Experimenter 단의 Experiments를 클릭하거나 드롭다운 메뉴의 Experi
 
 #### Ramp up
 두 개의 집단으로 이루어진 실험을 진행한다고 가정해봅시다. 두 집단에 1:1로 유저를 할당하는 것은 얼핏 보면 합당해 보입니다. 그러나 만약 실험 집단의 UX가 실제로는 유저들에게 끔찍하게 느껴진다면, 이 집단에 전체 유저의 50%를 할당하는 것은 이윤을 심각하게 해칠 것입니다. Ramp up은 실험 집단에 유저가 할당되는 비율을 점진적으로 높여가며 위험을 최소화하는 방법입니다. absusu에서는 실험 생성 시 Ramp up 항목에서 manual과 automatic 중 하나를 선택함으로써 ramp up을 사용할 수 있습니다.  
+
+![ex_screenshot](./images/mrp.png)
+
 Manual ramp up을 사용할 경우, 유저가 실험 집단에 할당되는 비율을 관리자가 직접 변경해주어야 합니다. 가령 두 집단으로 구성된 실험을 하나 만들고 각 집단의 weight를 1로 두었다고 가정합시다. 관리자는 실험 집단에 할당된 유저 중 몇 %를 실험 집단에 '실제로' 할당할지를 ramp up percent 항목에서 정할 수 있습니다. 만약 ramp up percent를 10%로 주었다면, 실험 집단에 실제로 할당되는 유저의 비율은 50%의 10%인 5%입니다. 나머지 95%는 통제 집단에 할당됩니다. 만약 실험 집단의 성과가 나쁘지 않다면 관리자는 실험 수정 기능을 이용해 ramp up percent를 점차적으로 높일 수 있습니다. 최종적으로 ramp up percent를 100%로 설정하면 (혹은 단순히 ramp up을 Don't use로 바꾸면) 실험 집단에 할당되는 유저의 비율이 50%가 될 것입니다. 만약 실험 집단의 성과가 아주 나쁘다면 관리자는 이 실험 집단을 삭제하거나 혹은 아예 실험을 삭제할 수 있습니다.  
+
+![ex_screenshot](./images/arp.png)
+
 Automatic ramp up을 사용할 경우, 유저가 실험 집단에 할당되는 비율이 설정한 시간까지 선형적으로 증가합니다. 이 시간을 ramp up end time에서 설정할 수 있습니다. 실험이 처음 생성되었을 때는 ramp up percent가 0%에서 시작하여 일정한 속도로 증가하다가, ramp up end time에서 설정한 시간이 되면 ramp up percent가 100%로 찹니다. 이 방법은 관리자가 일일이 ramp up percent를 수정해야 하는 수고를 덜어주지만, 대신 특정 집단이 형편없는 성과를 낼 경우 이를 감지하지 못합니다.
 
 #### Multi-armed bandit
 위의 ramp up에서 실험으로 인한 이윤 손실을 줄이는 것을 보았습니다. Multi-armed bandit 알고리즘(이하 MAB)은 여기서 더 나아가 이윤 손실을 최소화하기 위해 탐색(exploration)과 이용(exploitation) 간의 최적점을 찾는 알고리즘입니다. absusu에서는 실험 생성 시 Algorith 항목에서 'Multi-armed bandit'을 선택함으로써 MAB를 사용할 수 있습니다. MAB를 사용할 경우 absusu가 실험 진행 상황에 따라 각 집단에 할당되는 애플리케이션 유저의 비율을 주기적으로 바꿔주기 때문에 관리자가 직접 각 집단의 할당 비중을 정해 줄 필요가 없습니다. 대신 이 할당 비율을 얼마나 자주 업데이트할 것인가를 Assignment update interval에서 결정해주어야 합니다. 다음 업데이트 전까지 충분한 표본이 확보되어야 (즉 충분히 많은 사람들이 당신의 웹 페이지를 이용해야) 업데이트가 통계적으로 유의미해진다는 점을 명심하십시오.  
+
+![ex_screenshot](./images/mab.png)
+
 absusu의 MAB 알고리즘은 기본적으로 Thompson sampling을 사용하지만, 구체적인 업데이트 방식은 당신이 사용하는 KPI에 따라 달라집니다. 만약 CTR과 같이 결과가 성공과 실패로 구분되는 KPI를 사용한다면(CTR은 % 단위로 제공되지만, 그 계산 과정에는 성공ㅡ유저가 클릭한 경우ㅡ과 실패ㅡ유저가 클릭하지 않은 경우ㅡ가 관여합니다), absusu는 성공 확률 \theta가 베타 분포를 따른다고 가정하고 각 집단의 베타 분포의 파라미터를 업데이트하며 유저 할당 비율을 업데이트합니다. 만약 체류시간과 같이 결과가 실수 집단의 원소인 KPI를 사용한다면, absusu는 결과가 선형 회귀 모델에 의해 결정되며 이 회귀 모델의 각 계수가 정규분포를 따른다고 가정하고 (이 모델에서 독립변수는 어느 집단을 선택했느냐가 됩니다) 각 정규분포를 비모수적으로 업데이트하며 유저 할당 비율을 업데이트합니다. 여기에는 Markov chain Monte-Carlo 방법의 일종인 NUTS sampling이 사용됩니다(자세한 내용은 [여기](http://docs.pymc.io/notebooks/getting_started.html#Sampling-methods) 참고). Thompson sampling이 이루어지는 구체적인 방식은 [Scott(2014)](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/42550.pdf)와 [Chapelle&Li(2011)](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/thompson.pdf)를 참고하십시오.  
 absusu는 실험 진행 상황에 따라 실험을 자동 종료하는 기능도 지원합니다. Auto termination 항목을 체크할 경우 이 기능을 사용할 수 있습니다. 만약 어떤 집단의 성과가 다른 집단에 비해 너무나 명백히 높아서 더 이상 실험을 진행하지 않아도 될 정도일 경우, 당신이 미리 설정한 실험 종료시간에 상관없이 바로 실험이 종료됩니다. 이것이 이루어지는 자세한 원리는 [Scott(2014)](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/42550.pdf)를 참고하십시오.
 
@@ -200,4 +209,19 @@ window.onbeforeunload = function() {
   }
 ```
 
-###  실 확인하기
+### 대시보드로 실험 진행상황 확인하기 
+드롭다운 메뉴의 Experiment에서 Dashboard를 클릭하여 대시보드 페이지로 이동할 수 있습니다. 이 페이지에서는 각 실험들의 유저 할당 비율과 KPI 수치를 시각화된 자료로 확인할 수 있습니다. 모든 수치 및 그래프는 실시간으로 업데이트됩니다.
+
+![ex_screenshot](./images/dashboard1.png)
+
+왼쪽 위의 표에서는 각 실험의 집단별 KPI 수치를 숫자로 확인할 수 있습니다.
+
+![ex_screenshot](./images/dashboard2.png)
+
+오른쪽 위의 파이 그래프에서는 각 집단에 유저가 얼마나 할당되었는지를 실험별로 확인할 수 있습니다.
+
+![ex_screenshot](./images/dashboard3.png)
+
+아래의 라인 그래프에서는 시간에 따른 집단별 KPI 변화를 실험별로 확인할 수 있습니다.
+
+![ex_screenshot](./images/dashboard4.png)
