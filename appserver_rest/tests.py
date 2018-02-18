@@ -17,6 +17,7 @@ from django.utils import timezone
 import time
 import pymc3 as pm
 
+
 class UserActionModelTests(APITestCase):
 
     # 같은 ip일 경우 같은 집단인가. Ramp-up은 고려하지 않음.
@@ -66,7 +67,6 @@ class UserActionModelTests(APITestCase):
         expected = [1000]*10 # 의도한 분포
         chi, p = chisquare(group_assign_counts, expected) # 실제 분포가 의도한 분포와 얼마나 다른지 카이제곱 검정
         self.assertGreaterEqual(p, 0.1) # 이것이 두 분포가 같음을 보장하진 않음. 다만 최소한의 유사성을 보장하기 위한 것임.
-
 
     # 의도한 비율대로 집단이 배정되는가 (manual ramp up)
     def test_ramp_up_works(self):
@@ -532,5 +532,3 @@ class UserActionModelTests(APITestCase):
         self.assertEqual(len(rewards), 2) # 보상의 관측 횟수는 2여야 함
         self.assertLessEqual(rewards[0], rewards[1])
         # 보상은 정확히는 [0.05, 0.1]이어야 하나 코드 수행에 따른 오차가 있을 수 있으므로 크기비교로 검증
-
-

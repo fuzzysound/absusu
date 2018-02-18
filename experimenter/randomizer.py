@@ -4,13 +4,15 @@ Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul Nation
 
 File: absusu/experimenter/randomizer.py
 """
-# Randomization algorithm
-
+"""
+Randomization algorithm
+"""
 from django.utils import timezone
 from experimenter import models
 from appserver_rest.models import UserAssignment
 import hashlib
 import numpy as np
+
 
 # ip에 해당하는 group을 반환하는 함수
 def get_user_groups(ip):
@@ -29,6 +31,7 @@ def get_user_groups(ip):
         hash_index = hash_indexes[experiment.name] # 해당 experiment에서 user가 assign된 hash index
         groups[experiment.name] = groupify(hash_index, experiment) # hash index를 바탕으로 group 결정
     return groups
+
 
 # 유저를 group에 hash partition에 assign하고 DB에 기록하는 함수
 def assign(ip, experiment, hash_indexes):

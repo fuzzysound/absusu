@@ -4,11 +4,14 @@ Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul Nation
 
 File: absusu/appserver_rest/managers.py
 """
-### Model managers for custom querysets
+"""
+Model managers for custom querysets
+"""
 
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
+
 
 # UserActionManager를 위한 custom queryset
 class UserActionQuerySet(models.QuerySet):

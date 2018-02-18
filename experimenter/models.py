@@ -4,7 +4,9 @@ Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul Nation
 
 File: absusu/experimenter/models.py
 """
-### testing server 자체적으로 생성하는 데이터를 정의하는 모델들
+"""
+testing server 자체적으로 생성하는 데이터를 정의하는 모델들
+"""
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -14,18 +16,21 @@ from .managers import ExperimentManager, GroupManager, GoalManager
 from .bandit import Bandit
 from threading import Timer
 
-# default 값을 생성하기 위한 함수들
 
+# default 값을 생성하기 위한 함수들
 # 현재시각
 def get_default_now():
     return timezone.now()
+
 
 # 종료시간, 현재시각으로부터 일주일 뒤
 def get_default_deadline():
     return timezone.now() + timezone.timedelta(days=7)
 
+
 def get_default_ramp_up_deadline():
     return timezone.now() + timezone.timedelta(days=3.5)
+
 
 # 실험을 정의하는 모델
 class Experiment(models.Model):
@@ -75,7 +80,6 @@ class Experiment(models.Model):
             Timer((self.start_time - timezone.now()).total_seconds(), self.bandit.update_weights).start()
             # 실험 시작시간에 활성화하도록 타이머 생성
 
-
     # Model validation method
     def clean(self, *args, **kwargs):
 
@@ -94,6 +98,7 @@ class Experiment(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean() # validate
         super(Experiment, self).save(*args, **kwargs)
+
 
 # 실험의 집단을 정의하는 모델, 실험에 종속적.
 class Group(models.Model):
@@ -133,10 +138,10 @@ class Group(models.Model):
         if self.ramp_up == 'manual' and (self.ramp_up_percent > 100 or self.ramp_up_percent < 0):
             raise ValidationError(_("Ramp up percent must be between 0 and 100!"), code='ramp_up_percent_is_not_valid')
 
-
     def save(self, *args, **kwargs):
         self.full_clean() # validate
         super(Group, self).save(*args, **kwargs)
+
 
 # 실험의 목표를 정의하는 모델
 class Goal(models.Model):

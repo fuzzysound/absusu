@@ -4,7 +4,9 @@ Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul Nation
 
 File: absusu/experimenter/bandit.py
 """
-### Bandit algorithm이 동작하도록 하는 모듈
+"""
+Bandit algorithm 이 동작하도록 하는 모듈
+"""
 from django.utils import timezone
 from appserver_rest.models import UserAction
 from threading import Timer
@@ -42,6 +44,7 @@ def from_posterior_halfnormal(param, samples):
     x = np.concatenate([x, [x[-1] + 6*width]])
     y = np.concatenate([y, [0]])
     return Interpolated(param, x, y)
+
 
 
 class Bandit:

@@ -4,7 +4,9 @@ Authors: Junhyun Koh, Won Kim, Yonghoon Jeon at Big Data Institute, Seoul Nation
 
 File: absusu/appserver_rest/views.py
 """
-### 페이지에 데이터를 어떻게 나타낼지 정의하는 파일
+"""
+페이지에 데이터를 어떻게 나타낼지 정의하는 파일
+"""
 from rest_framework import viewsets
 from rest_framework.renderers import AdminRenderer, JSONRenderer
 # AdminRenderer는 테이블 형식(보기 편한 형태), JSONRenderer는 JSON 형식(JSON 형식으로 response를 보내기 위한 것)
@@ -17,6 +19,7 @@ class UserActionViewSet(viewsets.ModelViewSet): # UserAction 모델의 viewset
     queryset = UserAction.objects.all()
     serializer_class = UserActionSerializer
     renderer_classes = (AdminRenderer, JSONRenderer, ) # 두 개의 renderer를 제공한다
+
 
 class UserAssignmentViewSet(viewsets.ModelViewSet): # UserAssignment 모델의 viewset
     queryset = UserAssignment.objects.all()
