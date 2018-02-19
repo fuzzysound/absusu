@@ -4,8 +4,5 @@ djangorestframework==3.7.3
 markdown==2.6.9
 django-filter
 pymysql==0.7.11
-numpy==1.13.3
-scipy==0.19.1
 git+https://github.com/pymc-devs/pymc3
-theano==1.0.1
 django-controlcenter==0.2.5
