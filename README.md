@@ -1,50 +1,46 @@
-# ABSUSU
-ABSUSU는 Python Django 기반의 A/B testing framework입니다.
+# absusu
+absusu는 Python Django 기반의 A/B testing framework입니다.
 ## 특징
 ### REST API를 이용한 정보 주고받기
-ABSUSU는 [Django Rest Framework](http://www.django-rest-framework.org/)를 이용하여 당신이 실험하고자 하는 웹 어플리케이션과 통신할 수 있습니다. 유저의 행동 정보를 ABSUSU에게 HTTP request로 보내면 ABSUSU가 유저를 어느 집단에 할당할지를 HTTP response로 보낼 것입니다. 이 response의 정보를 이용해 유저들에게 서로 다른 UX를 제공할 수 있습니다.
+absusu는 [Django Rest Framework](http://www.django-rest-framework.org/)를 이용하여 당신이 실험하고자 하는 웹 어플리케이션과 통신할 수 있습니다. 유저의 행동 정보를 absusu에게 HTTP request로 보내면 absusu가 유저를 어느 집단에 할당할지를 HTTP response로 보낼 것입니다. 이 response의 정보를 이용해 유저들에게 서로 다른 UX를 제공할 수 있습니다.
 
 ### UI를 이용한 간단한 실험 생성
-ABSUSU는 Django 관리자 페이지를 이용하는 실험 생성 UI를 제공합니다. 이곳에서 실험을 설정하고 생성할 수 있습니다.
+absusu는 Django 관리자 페이지를 이용하는 실험 생성 UI를 제공합니다. 이곳에서 실험을 설정하고 생성할 수 있습니다.
 
 ### Ramp-up  및 Multi-armed bandit 지원
 absusu는 안전한 실험을 위해 ramp up을 지원합니다. 이를 이용해 실험으로 인해 발생하는 이윤 손실을 최소화할 수 있습니다. 또한 더 발전된 실험 알고리즘인 multi-armed bandit을 사용할 수 있습니다. 원할 경우 실험 진행 상황에 따라 실험을 자동 종료하도록 할 수도 있습니다. 이 기능들에 대한 자세한 설명은 아래 'User Guide'를 참고하십시오.
 
 ### 대시보드를 통해 실험 결과 제공
-ABSUSU는 [Django-controlcenter](https://github.com/byashimov/django-controlcenter)를 이용하여 실험 결과를 대시보드로 제공합니다. 각 실험의 집단별 유저 할당 수와 KPI 수치등을 차트로 보여줍니다. 대시보드는 실험 진행 중에 Ajax를 통해 실시간으로 업데이트됩니다. 
+absusu는 [Django-controlcenter](https://github.com/byashimov/django-controlcenter)를 이용하여 실험 결과를 대시보드로 제공합니다. 각 실험의 집단별 유저 할당 수와 KPI 수치등을 차트로 보여줍니다. 대시보드는 실험 진행 중에 Ajax를 통해 실시간으로 업데이트됩니다. 
 ## User Guide
-### 필요한 패키지
+### 필요한 파이썬 버전 및 패키지
 - python 3.6 이상
 - django 1.11
 - django-mysql 2.2.0
 - django rest framework 3.7.3
 - pymysql 0.7.11
-- numpy
-- scipy
 - django-controlcenter 0.2.5
+- pymc3 3.3
+- markdown 2.6.9
 ### 설치
-ABSUSU는 Django 기반이기 때문에 Django를 배포할 수 있는 어떤 어플리케이션도 지원합니다. 여기에서는 Nginx와 uWSGI를 이용한 배포를 예시로 들 것입니다. 아래 예시는 Ubuntu 16.04 환경에서 진행한 것으로 다른 OS를 사용할 경우 작동하지 않을 수 있습니다.
+**absusu는 [Theano](http://deeplearning.net/software/theano/)를 사용하기 때문에 [Anaconda](https://www.anaconda.com/download/#linux) 환경에서만 동작합니다. 반드시 Anaconda를 설치하여 Anaconda 환경에서 absusu가 돌아가도록 하십시오. 또한 가상환경 위에서 진행하는 것을 권장합니다.**
+
+absusu는 Django 기반이기 때문에 Django를 배포할 수 있는 어떤 어플리케이션도 지원합니다. 여기에서는 Nginx와 uWSGI를 이용한 배포를 예시로 들 것입니다. 아래 예시는 Ubuntu 16.04 환경에서 진행한 것으로 다른 OS를 사용할 경우 작동하지 않을 수 있습니다.
 
 [참고한 글](https://twpower.github.io/linux/2017/04/13/41(Nginx-uWSGI-Django-%EC%97%B0%EA%B2%B0%ED%95%98%EA%B8%B0).html)
 
 #### 1. 패키지 설치하기
 
-가상환경 위에서 진행하는 것을 권장합니다.
-
-git clone으로 ABSUSU를 설치합니다.
+git clone으로 absusu를 설치합니다.
 ```shell
 git clone https://github.com/fuzzysound/absusu
 ```
-ABSUSU에 필요한 패키지들을 설치합니다.
+
+absusu에 필요한 패키지들을 설치합니다.
 ```shell
 sudo apt-get install pip
 pip install -r absusu/requirement.txt
 ```
-Theano를 import할 때 에러를 방지하기 위해 .bashrc에 다음 라인을 추가합니다.
-> `.bashrc`
-> ```bash
-> export MKL_THREADING_LAYER=GNU
-> ```
 
 #### 2. Nginx와 uWSGI 설치하고 설정하기
 아래의 명령어로 Nginx를 설치합니다.
@@ -55,17 +51,18 @@ sudo apt-get install nginx
 ```shell
 sudo service nginx start
 ```
-제대로 설치되었다면 서버의 IP 주소로 브라우저를 통해 접속했을 때 "Welcome to Ngnix!" 화면이 나와야 합니다.
+제대로 설치되었다면 서버의 IP 주소 혹은 DNS 주소로 브라우저를 통해 접속했을 때 "Welcome to Ngnix!" 화면이 나와야 합니다.
 이제 uWSGI를 설치합니다.
 ```shell
-pip install uwsgi
+conda config --add channels conda-forge
+conda install uwsgi
 ```
 Nginx 설정 파일 중 `uwsgi_params` 파일을 복사해 `absusu` 폴더에 붙여넣기합니다.
 ```shell
 cp /etc/nginx/uwsgi_params absusu
 ```
 `absusu` 폴더에 `absusu_backend`라는 이름의 디렉토리를 만들고 그 안에 `backend_nginx.conf`라는 이름의 파일을 다음의 내용으로 만듭니다.
-> `backend_nginx.conf`
+> `absusu/absusu_backend/backend_nginx.conf`
 > ```bash
 > upstream django{
 >     # Django 서버가 listening할 ip 주소와 포트 번호
@@ -75,12 +72,12 @@ cp /etc/nginx/uwsgi_params absusu
 > server{
 >     # 외부에서 listening할 포트 번호
 >     listen [Port Number];
->     # ABSUSU를 실행하는 서버의 IP주소
+>     # absusu를 실행하는 서버의 IP주소
 >     server_name [IP Address];
 >     charset utf-8;
 >
 >     # 최대 업로드 크기
->     client_max_body_size 75M
+>     client_max_body_size 75M;
 >
 >     # Django media 파일 경로
 >     location /media {
@@ -102,7 +99,7 @@ cp /etc/nginx/uwsgi_params absusu
 [] 안의 내용은 직접 작성하시기 바랍니다.
 이제 이 파일의 symbolic link를 nginx의 `sites-enabled` 폴더에 추가합니다.
 ```shell
-sudo ln -s /etc/nginx/sites-enabled/
+sudo ln -s /home/ubuntu/absusu/absusu_backend/backend_nginx.conf /etc/nginx/sites-enabled/
 ```
 
 #### 3. Django 준비 및 실행하기
@@ -112,13 +109,29 @@ python manage.py makemigrations
 python manage.py migrate
 python manage.py collectstatic
 ```
+간혹 `python manage.py makemigrations` 명령이 제대로 동작하지 않을 때가 있습니다. `Migrations for 'appserver_rest':`나 `Migrations for 'experimenter':`와 같은 항목이 출력되지 않는다면 마이그레이션이 제대로 이루어지지 않은 것입니다. 이럴 때는 각 애플리케이션마다 마이그레이션을 만들어주어야 합니다. 다음과 같이 입력하십시오.
+```shell
+python manage.py makemigrations appserver_rest
+python manage.py makemigrations experimenter
+python manage.py migrate
+```
+`absusu/settings.py` 파일을 열어 ALLOWED_HOSTS에 서버의 public IP 주소, public DNS 주소, 그리고 'localhost'와 '127.0.0.1'을 추가해주십시오.
+> `absusu/settings.py`
+> ```python
+> ALLOWED_HOSTS = [YOUR_PUBLIC_IP_ADDRESS, YOUR_PUBLIC_DNS_ADDRESS, 'localhost', '127.0.0.1']
+> ```
+
 다음으로 nginx를 재시작합니다.
 ```shell
 sudo service nginx restart
 ```
-마지막으로 아래와 같이 입력합니다. 이제 ABSUSU가 실행되었고 외부에서 "http://[도메인 주소]:8001"로 접속할 수 있습니다.
+마지막으로 아래와 같이 입력합니다. 이제 absusu가 실행되었고 외부에서 "http://[public IP 주소]:8001" 혹은 "http://[public DNS 주소]:8001"로 접속할 수 있습니다.
 ```shell
 uwsgi --http :8001 --module absusu.wsgi --check-static /home/ubuntu/absusu/
+```
+만약 `uwsgi: error while loading shared libraries: libiconv.so.2: cannot open shared object file: No such file or directory`와 같은 에러가 발생한다면 다음을 입력하십시오.
+```shell
+conda install -c conda-forge libiconv
 ```
 ### 실험 생성하기
 실험을 생성하기 위해서는 관리자 계정을 생성해야 합니다. 관리자 계정이 없으면 `absusu` 디렉토리에서 다음을 입력합니다.
@@ -172,8 +185,10 @@ Automatic ramp up을 사용할 경우, 유저가 실험 집단에 할당되는 �
 
 ![ex_screenshot](./images/mab.png)
 
-absusu의 MAB 알고리즘은 기본적으로 Thompson sampling을 사용하지만, 구체적인 업데이트 방식은 당신이 사용하는 KPI에 따라 달라집니다. 만약 CTR과 같이 결과가 성공과 실패로 구분되는 KPI를 사용한다면(CTR은 % 단위로 제공되지만, 그 계산 과정에는 성공ㅡ유저가 클릭한 경우ㅡ과 실패ㅡ유저가 클릭하지 않은 경우ㅡ가 관여합니다), absusu는 성공 확률 \theta가 베타 분포를 따른다고 가정하고 각 집단의 베타 분포의 파라미터를 업데이트하며 유저 할당 비율을 업데이트합니다. 만약 체류시간과 같이 결과가 실수 집단의 원소인 KPI를 사용한다면, absusu는 결과가 선형 회귀 모델에 의해 결정되며 이 회귀 모델의 각 계수가 정규분포를 따른다고 가정하고 (이 모델에서 독립변수는 어느 집단을 선택했느냐가 됩니다) 각 정규분포를 비모수적으로 업데이트하며 유저 할당 비율을 업데이트합니다. 여기에는 Markov chain Monte-Carlo 방법의 일종인 NUTS sampling이 사용됩니다(자세한 내용은 [여기](http://docs.pymc.io/notebooks/getting_started.html#Sampling-methods) 참고). Thompson sampling이 이루어지는 구체적인 방식은 [Scott(2014)](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/42550.pdf)와 [Chapelle&Li(2011)](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/thompson.pdf)를 참고하십시오.  
-absusu는 실험 진행 상황에 따라 실험을 자동 종료하는 기능도 지원합니다. Auto termination 항목을 체크할 경우 이 기능을 사용할 수 있습니다. 만약 어떤 집단의 성과가 다른 집단에 비해 너무나 명백히 높아서 더 이상 실험을 진행하지 않아도 될 정도일 경우, 당신이 미리 설정한 실험 종료시간에 상관없이 바로 실험이 종료됩니다. 이것이 이루어지는 자세한 원리는 [Scott(2014)](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/42550.pdf)를 참고하십시오.
+absusu의 MAB 알고리즘은 기본적으로 Thompson sampling을 사용하지만, 구체적인 업데이트 방식은 당신이 사용하는 KPI에 따라 달라집니다. 만약 CTR과 같이 결과가 성공과 실패로 구분되는 KPI를 사용한다면(CTR은 % 단위로 제공되지만, 그 계산 과정에는 성공ㅡ유저가 클릭한 경우ㅡ과 실패ㅡ유저가 클릭하지 않은 경우ㅡ가 관여합니다), absusu는 성공 확률 \theta가 베타 분포를 따른다고 가정하고 각 집단의 베타 분포의 파라미터를 업데이트하며 유저 할당 비율을 업데이트합니다. 만약 체류시간과 같이 결과가 실수 집단의 원소인 KPI를 사용한다면, absusu는 결과가 베이지언 선형 회귀 모델에 의해 결정되며 이 회귀 모델의 각 계수가 정규분포를 따른다고 가정하고 (이 모델에서 독립변수는 어느 집단을 선택했느냐가 됩니다) 각 정규분포를 비모수적으로 업데이트하며 유저 할당 비율을 업데이트합니다. 여기에는 Markov chain Monte-Carlo 방법의 일종인 NUTS sampling이 사용됩니다(자세한 내용은 [여기](http://docs.pymc.io/notebooks/getting_started.html#Sampling-methods) 참고). Thompson sampling이 이루어지는 구체적인 방식은 [Scott(2014)](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/42550.pdf)와 [Chapelle&Li(2011)](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/thompson.pdf)를 참고하십시오.  
+absusu는 실험 진행 상황에 따라 실험을 자동 종료하는 기능도 지원합니다. Auto termination 항목을 체크할 경우 이 기능을 사용할 수 있습니다. 만약 어떤 집단의 성과가 다른 집단에 비해 너무나 명백히 높아서 더 이상 실험을 진행하지 않아도 될 정도일 경우, 당신이 미리 설정한 실험 종료시간에 상관없이 바로 실험이 종료됩니다. 이것이 이루어지는 자세한 원리는 [Scott(2014)](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/42550.pdf)를 참고하십시오.  
+  
+**주의: 체류시간과 같은 KPI를 사용할 때의 Thompson sampling 알고리즘은 최적화가 완료되지 않아 absusu의 속도를 저하시킬 수 있습니다.** 
 
 
 ### 어플리케이션 상의 추가작업
