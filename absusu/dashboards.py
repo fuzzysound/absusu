@@ -15,6 +15,7 @@ from reward import KPI
 from django.utils import timezone
 from collections import Counter
 from django.db.models import F
+from experimenter.randomizer import get_user_groups
 
 
 # to show a list of compute_ctr for each experiment
@@ -101,10 +102,10 @@ class GroupPieChart(widgets.PieChart):
 
     def values(self):
         # Manipulate val_queryset
-        self.val_queryset = self.val_queryset.values_list('groups', flat=True)
+        self.val_queryset = self.val_queryset.values_list('ip', flat=True)
         groups = []
         for i in range(len(self.val_queryset)):
-            groups.append(self.val_queryset[i][self.experiment])
+            groups.append(get_user_groups(self.val_queryset[i])[self.experiment])
         return Counter(groups).values()
 
     def series(self):

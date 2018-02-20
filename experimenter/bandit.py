@@ -89,9 +89,6 @@ class Bandit:
             clicks = UserAction.objects.query_action(self.experiment, group, click_action,
                                                      self.last_update_time).count()
             # 최근 업데이트 이후 생성된 로그 중 이 실험과 집단에서 view와 click을 action 값으로 포함한 로그의 수를 각각 센다
-            self.last_update_time = timezone.now()  # 최근 업데이트 시간 갱신
-            self.next_update_time += timezone.timedelta(
-                hours=self.experiment.assignment_update_interval)  # 다음 업데이트 시간 갱신
             if clicks > impressions:  # click이 view보다 자주 일어났을 경우 (있어서는 안 될 경우)
                 impressions = clicks  # impressions 값 보정
             return clicks, impressions - clicks
@@ -143,10 +140,7 @@ class Bandit:
                     # last_leave_time 값은 계속 덮어씌워져 결국에는 가장 나중의 leave의 시간 값이 됨
                 if last_leave_time < earliest_latest_leave_time:
                     earliest_latest_leave_time = last_leave_time # 모든 이용자의 마지막 leave 중 가장 이른 것으로 지정
-            self.last_update_time = earliest_latest_leave_time # 그 값으로 last_update_time을 업데이트
-            self.next_update_time += timezone.timedelta(
-                hours=self.experiment.assignment_update_interval)  # 다음 업데이트 시간 갱신
-            return time_on_page_list
+            return earliest_latest_leave_time, time_on_page_list
         else: # 등록되지 않은 KPI일 경우
             raise ValueError("Unknown KPI:", self.goal.KPI)
 
@@ -154,7 +148,12 @@ class Bandit:
     def update_beta_dist_parameters(self):
         for i, group in enumerate(self.groups):  # 모든 집단에 대해
             successes, failures = self.get_new_successes_and_failures(group) # 새로운 성공과 실패 횟수 얻기
+            print(group.name, successes, failures)
             self.parameters[i] = tuple(map(sum, zip(self.parameters[i], (successes, failures))))  # 업데이트
+            print(group.name, self.parameters[i])
+        self.last_update_time = timezone.now()  # 최근 업데이트 시간 갱신
+        self.next_update_time += timezone.timedelta(
+            hours=self.experiment.assignment_update_interval)  # 다음 업데이트 시간 갱신
 
     # 베이지언 모델을 업데이트하는 method
     def update_model(self):
@@ -162,13 +161,19 @@ class Bandit:
         dummy_coded_group_variables = [] # 더미코딩된 변수 값이 담길 리스트
         # 예를 들어 집단이 5개이면 변수의 개수는 5개이고
         # 한 sample point가 유저가 첫 번째 집단에 배정됐을 때 나온 것이라면 이 때 X = [1, 0, 0, 0, 0]
+        best_earliest_latest_leave_time = None
         for i, group in enumerate(self.groups): # 모든 집단에 대해
-            rewards_of_the_group = self.get_new_rewards(group) # 새로운 보상 리스트 얻기
+            earlies_latest_leave_time, rewards_of_the_group = self.get_new_rewards(group) # 새로운 보상 리스트 얻기
             dummy = [0] * len(self.groups)
             dummy[i] += 1 # 이 집단에 대한 더미코딩된 변수 값 생성
             dummy_coded_group_variable = [dummy] * len(rewards_of_the_group) # 이 값을 보상 개수만큼 만듬
             rewards += rewards_of_the_group # 리스트에 추가
             dummy_coded_group_variables += dummy_coded_group_variable # 리스트에 추가
+            if best_earliest_latest_leave_time is None or earlies_latest_leave_time < best_earliest_leave_time:
+                best_earliest_leave_time = earlies_latest_leave_time
+        self.last_update_time = best_earliest_latest_leave_time # 그 값으로 last_update_time을 업데이트
+        self.next_update_time += timezone.timedelta(
+            hours=self.experiment.assignment_update_interval)  # 다음 업데이트 시간 갱신
         dummy_coded_group_variables = list(zip(*dummy_coded_group_variables))
         # 열과 행을 바꾸어주어 아래에서 모델에 추가할 수 있도록 함.
         # shape가 (집단 개수, 보상 개수)에서 (보상 개수, 집단 개수)로 바뀜
