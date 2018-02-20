@@ -148,9 +148,7 @@ class Bandit:
     def update_beta_dist_parameters(self):
         for i, group in enumerate(self.groups):  # 모든 집단에 대해
             successes, failures = self.get_new_successes_and_failures(group) # 새로운 성공과 실패 횟수 얻기
-            print(group.name, successes, failures)
             self.parameters[i] = tuple(map(sum, zip(self.parameters[i], (successes, failures))))  # 업데이트
-            print(group.name, self.parameters[i])
         self.last_update_time = timezone.now()  # 최근 업데이트 시간 갱신
         self.next_update_time += timezone.timedelta(
             hours=self.experiment.assignment_update_interval)  # 다음 업데이트 시간 갱신
